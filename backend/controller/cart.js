@@ -62,6 +62,7 @@ function addToCart(req, res) {
           }
 
           cart.totalPrice = calcTotalPrice(cart.cartItems);
+          cart.totalPriceAfterDiscount = undefined;
           return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover"));
         })
         .then((data) => {
@@ -88,6 +89,7 @@ function updateCartItem(req, res) {
 
       item.quantity = req.body.quantity;
       cart.totalPrice = calcTotalPrice(cart.cartItems);
+      cart.totalPriceAfterDiscount = undefined;
       return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover"));
     })
     .then((data) => {
@@ -111,6 +113,7 @@ function removeCartItem(req, res) {
       );
 
       cart.totalPrice = calcTotalPrice(cart.cartItems);
+      cart.totalPriceAfterDiscount = undefined;
       return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover"));
     })
     .then((data) => {

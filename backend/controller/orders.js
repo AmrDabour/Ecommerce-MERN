@@ -19,7 +19,7 @@ function createOrder(req, res) {
           quantity: item.quantity,
           price: item.price,
         })),
-        totalPrice: cart.totalPrice,
+        totalPrice: cart.totalPriceAfterDiscount || cart.totalPrice,
         shippingAddress: req.body.shippingAddress || {},
         paymentMethod: req.body.paymentMethod || "cash",
       };

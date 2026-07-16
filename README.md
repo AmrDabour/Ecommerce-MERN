@@ -1,29 +1,51 @@
-# Lure E-Commerce 🚀
+<div align="center">
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/angularjs/angularjs-original.svg" alt="Angular Logo" width="80" height="80">
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nodejs/nodejs-original.svg" alt="Node Logo" width="80" height="80">
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mongodb/mongodb-original.svg" alt="MongoDB Logo" width="80" height="80">
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="80" height="80">
+  
+  <h1>Lure E-Commerce 🚀</h1>
+  
+  <p><strong>A modern, microservices-based MERN e-commerce application featuring a world-class UI, interactive AI Chatbot, advanced analytics, and robust background task processing.</strong></p>
+</div>
 
-A modern, full-stack MERN e-commerce application featuring a world-class UI built with Angular, glassmorphism aesthetics, advanced routing, an interactive AI Chatbot, and a robust Express/MongoDB backend.
+---
 
 ## 🌟 Features
 
-- **World-Class Frontend (Angular v21):** Premium design, smooth transitions, dark mode, 3D hover effects, and an interactive Cart Drawer.
-- **AI Chatbot Integrated:** A sleek glassmorphic bubble with an AI Chat interface ready for API integration.
-- **RESTful API Backend:** Built with Express, Node.js, and MongoDB. Handles authentication, products, cart logic, orders, and coupons.
-- **Containerized Stack:** Fully configured with Docker and Docker Compose for seamless deployment and development.
-- **CI/CD Ready:** Configured with GitHub Actions for automated building and testing.
+- **World-Class Frontend (Angular v21):** Premium design, smooth transitions, dark mode, 3D hover effects, and a seamlessly integrated Checkout & Cart drawer.
+- **AI Chatbot Microservice:** A sleek glassmorphic bubble with an AI Chat interface powered by a dedicated Python backend (FastAPI/Transformers).
+- **RESTful API Backend:** Built with Express, Node.js, and MongoDB. Handles robust authentication, products, dynamic cart & coupon logic, and stripe-integrated orders.
+- **Advanced Monitoring:** Out-of-the-box infrastructure monitoring utilizing Prometheus and Grafana dashboards for server metrics (Node Exporter) and container performance (cAdvisor).
+- **Background Processing:** Celery + RabbitMQ + Redis orchestrating asynchronous tasks for the AI engine.
+- **Containerized Stack:** Fully orchestrated with Docker Compose for seamless 1-click deployments.
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Angular v21, SCSS (Design Tokens), TypeScript.
-- **Backend:** Node.js, Express, Mongoose, JWT.
-- **Database:** MongoDB.
-- **DevOps:** Docker, Docker Compose, Nginx, GitHub Actions.
+### Frontend
+- **Framework:** Angular v21, TypeScript
+- **Styling:** SCSS, Modern Design Tokens, CSS Variables
+
+### Backend
+- **Core API:** Node.js, Express, Mongoose, JWT
+- **Database:** MongoDB
+- **AI Microservice:** Python, FastAPI, Celery
+- **Message Broker & Caching:** RabbitMQ, Redis
+
+### DevOps & Monitoring
+- **Containerization:** Docker, Docker Compose
+- **Web Server:** Nginx
+- **Observability:** Prometheus, Grafana, Node Exporter, cAdvisor
+- **Error Tracking:** Sentry
 
 ## 🚀 Getting Started
 
-You can run this project easily using Docker Compose or manually via npm.
+The recommended way to run this highly-distributed architecture is via Docker Compose.
 
-### Option 1: Run via Docker (Recommended)
+### Prerequisites
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
 
-Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed on your machine.
+### Running with Docker
 
 1. **Clone the repository:**
    ```bash
@@ -31,52 +53,39 @@ Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https:
    cd lure-ecommerce
    ```
 
-2. **Run Docker Compose:**
+2. **Configure Environment Variables:**
+   Rename `.env.example` to `.env` in both the root, `backend/`, and `AI/` directories and populate them with your secrets (like Stripe API keys, MongoDB URLs, etc.).
+
+3. **Spin up the Cluster:**
    ```bash
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
-   This command will spin up:
-   - **MongoDB** container.
-   - **Backend** container (listening on port 3000).
-   - **Frontend** container (Nginx serving the Angular app on port 9837).
+   This command orchestrates:
+   - `lure_mongodb`: Database
+   - `lure_redis` & `lure_rabbitmq`: Message broker for Celery
+   - `lure_backend`: Main Node.js API (Port `5000`)
+   - `lure_ai` & `lure_celery_worker`: Python Microservices (Port `8000`)
+   - `lure_frontend`: Nginx serving Angular (Port `9837`)
+   - Monitoring Stack: Prometheus (`9090`), Grafana (`3000`), cAdvisor (`8080`), Node Exporter (`9100`)
 
-3. **Access the application:**
-   - Frontend: `http://localhost:9837`
-   - Backend API: `http://localhost:3000`
-
-### Option 2: Run Locally (Manual)
-
-If you prefer to run the apps independently without Docker:
-
-1. **Start MongoDB:** Ensure you have a local MongoDB instance running on `mongodb://localhost:27017/ecommerce`.
-2. **Start the Backend:**
-   ```bash
-   cd backend
-   npm install
-   node seed.js # (Optional) To seed the DB with 1000+ products
-   npm start
-   ```
-3. **Start the Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
-   Navigate to `http://localhost:4200` to view the app.
+4. **Access the Application:**
+   - **Storefront:** [http://localhost:9837](http://localhost:9837)
+   - **Grafana Dashboards:** [http://localhost:3000](http://localhost:3000) (Default Login: `admin`/`admin`)
 
 ## 🗄️ Project Structure
 
-```
-├── backend/            # Express REST API, Models, Controllers, Seed Scripts
-├── frontend/           # Angular Application, UI Components, Styles
-├── docker-compose.yml  # Orchestrates DB, Backend, and Frontend containers
-├── .github/workflows/  # CI/CD pipelines
+```text
+├── AI/                 # Python FastAPI Microservice, Celery Tasks
+├── backend/            # Express REST API, Models, Controllers
+├── frontend/           # Angular Web App, SCSS Tokens, UI Components
+├── monitoring/         # Prometheus & Grafana Provisioning configs
+├── docker-compose.yml  # Microservices orchestration
 └── README.md
 ```
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome!
+Contributions, issues, and feature requests are highly welcome! Feel free to check the issues page.
 
 ## 📝 License
 

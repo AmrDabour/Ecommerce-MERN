@@ -83,7 +83,7 @@ function applyCoupon(req, res) {
 
           //apply discount
           let discountAmount = (totalBeforeDiscount * coupon.discount) / 100;
-          cart.totalPrice = (totalBeforeDiscount - discountAmount).toFixed(2) * 1;
+          cart.totalPriceAfterDiscount = (totalBeforeDiscount - discountAmount).toFixed(2) * 1;
 
           return cart.save();
         })
