@@ -91,4 +91,33 @@ export class ChatbotComponent implements AfterViewChecked {
       this.sendMessage();
     }
   }
+
+  formatMessage(content: string): string {
+    if (!content) return '';
+    
+    // 1. Escape HTML
+    let escaped = content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    // 2. Parse Bold: **text** -> <strong>text</strong>
+    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // 3. Parse Lists: * text -> &bull; text
+    escaped = escaped.replace(/^\*\s+(.*?)$/gm, '&bull; $1');
+
+    // 4. Parse Links: [text](url) -> <a href="url" target="_blank" class="chat-product-link">text</a>
+    escaped = escaped.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
+      const cleanUrl = url.replace(/&amp;/g, '&');
+      return `<a href="${cleanUrl}" target="_blank" class="chat-product-link">${text}</a>`;
+    });
+
+    // 5. Convert newlines
+    escaped = escaped.replace(/\n/g, '<br>');
+
+    return escaped;
+  }
 }

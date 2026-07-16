@@ -1,6 +1,7 @@
 const { OrderModel } = require("../models/orderModel.js");
 const { CartModel } = require("../models/cartModel.js");
 const { ProductModel } = require("../models/productModel.js");
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 //create order from cart
 function createOrder(req, res) {
@@ -122,4 +123,74 @@ function markAsDelivered(req, res) {
     });
 }
 
-module.exports = { createOrder, getUserOrders, getOrderById, markAsPaid, markAsDelivered };
+//create checkout session
+function createCheckoutSession(req, res) {
+  OrderModel.findById(req.params.id)
+    .populate("orderItems.product", "name imageCover price")
+    .then((order) => {
+      if (!order) {
+        return res.status(404).json({ msg: "order not found" });
+      }
+      
+      const lineItems = order.orderItems.map((item) => {
+        return {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: item.product.name,
+              images: item.product.imageCover ? [item.product.imageCover] : [],
+            },
+            unit_amount: Math.round(item.price * 100),
+          },
+          quantity: item.quantity,
+        };
+      });
+
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
+      
+      return stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        mode: 'payment',
+        success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+        cancel_url: `${frontendUrl}/checkout`,
+        client_reference_id: order._id.toString(),
+      }).then((session) => {
+        res.status(200).json({ msg: "session created", sessionUrl: session.url });
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ msg: "Error creating checkout session", error: err.message });
+    });
+}
+
+//verify payment
+function verifyPayment(req, res) {
+  const sessionId = req.body.session_id;
+  if (!sessionId) {
+    return res.status(400).json({ msg: "session_id is required" });
+  }
+
+  stripe.checkout.sessions.retrieve(sessionId)
+    .then((session) => {
+      if (session.payment_status === 'paid') {
+        const orderId = session.client_reference_id;
+        return OrderModel.findByIdAndUpdate(
+          orderId,
+          { isPaid: true, paidAt: Date.now() },
+          { new: true }
+        ).then((order) => {
+          res.status(200).json({ msg: "payment verified", data: order });
+        });
+      } else {
+        res.status(400).json({ msg: "payment not completed" });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ msg: "Error verifying payment", error: err.message });
+    });
+}
+
+module.exports = { createOrder, getUserOrders, getOrderById, markAsPaid, markAsDelivered, createCheckoutSession, verifyPayment };

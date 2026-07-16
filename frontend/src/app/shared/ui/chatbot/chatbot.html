@@ -36,7 +36,7 @@
             <div class="chat-msg__avatar">AI</div>
           }
           <div class="chat-msg__content">
-            <p>{{ msg.content }}</p>
+            <p [innerHTML]="formatMessage(msg.content)"></p>
           </div>
         </div>
       }

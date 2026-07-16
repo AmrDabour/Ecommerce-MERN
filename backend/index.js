@@ -28,6 +28,11 @@ app.use(
 app.use(express.json());
 app.use(logger);
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "UP" });
+});
+
 //========routing========//
 // endpoints /ROUTES//
 app.use("/users", userRouter);

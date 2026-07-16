@@ -29,4 +29,12 @@ export class OrderService {
   markAsDelivered(id: string): Observable<ApiResponse<Order>> {
     return this.http.patch<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/deliver`, {});
   }
+
+  createCheckoutSession(id: string): Observable<{ msg: string, sessionUrl: string }> {
+    return this.http.post<{ msg: string, sessionUrl: string }>(`${this.apiUrl}/orders/${id}/checkout-session`, {});
+  }
+
+  verifyPayment(id: string, sessionId: string): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/verify-payment`, { session_id: sessionId });
+  }
 }

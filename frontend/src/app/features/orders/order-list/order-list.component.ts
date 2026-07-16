@@ -22,11 +22,13 @@ export class OrderListComponent implements OnInit {
   ngOnInit(): void {
     this.orderService.getOrders().subscribe({
       next: (res) => {
-        // Backend currently only returns orders for the current user unless modified.
         this.orders.set(res.data);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
+      complete: () => {
+        console.log('finish');
+      }
     });
   }
 

@@ -10,6 +10,26 @@ async function handleChat(req, res) {
       return res.status(400).json({ msg: "Message is required" });
     }
 
+    // Try calling the FastAPI AI agent
+    try {
+      const aiUrl = process.env.AI_API_URL || "http://127.0.0.1:8000/chat";
+      const response = await fetch(aiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          session_id: req.ip || "global_session"
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return res.status(200).json({ reply: data.response });
+      }
+    } catch (apiError) {
+      console.warn("AI service not reachable, falling back to mock chatbot.", apiError.message);
+    }
+
     const lowerMsg = message.toLowerCase();
     let reply = "I'm a virtual assistant for this store. How can I help you today?";
 

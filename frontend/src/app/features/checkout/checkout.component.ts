@@ -96,8 +96,22 @@ export class CheckoutComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.cartService.clearCartSignal();
-        this.toast.success('Order placed successfully!');
-        this.router.navigate(['/orders', res.data._id]);
+        
+        if (paymentMethod === 'card') {
+          // Trigger Stripe Checkout
+          this.orderService.createCheckoutSession(res.data._id).subscribe({
+            next: (sessionRes) => {
+              window.location.href = sessionRes.sessionUrl;
+            },
+            error: (err) => {
+              this.loading.set(false);
+              this.toast.error('Failed to initialize payment gateway.');
+            }
+          });
+        } else {
+          this.toast.success('Order placed successfully!');
+          this.router.navigate(['/orders', res.data._id]);
+        }
       },
       error: (err) => {
         this.loading.set(false);
