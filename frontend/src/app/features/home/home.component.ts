@@ -7,6 +7,7 @@ import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { AuthService } from '../../core/services/auth.service';
 import { WishlistService } from '../../core/services/wishlist.service';
+import { RecommendationService } from '../../core/services/recommendation.service';
 import { Product } from '../../core/models/product.model';
 
 import { TiltDirective } from '../../shared/directives/tilt.directive';
@@ -38,13 +39,17 @@ export class HomeComponent implements OnInit {
   
   private readonly productService = inject(ProductService);
   private readonly cartService = inject(CartService);
-  private readonly authService = inject(AuthService);
+  protected readonly authService = inject(AuthService);
   protected readonly wishlistService = inject(WishlistService);
   private readonly toast = inject(ToastService);
+  private readonly recService = inject(RecommendationService);
 
   protected readonly featuredProducts = signal<Product[]>([]);
   protected readonly loadingProducts = signal(true);
   protected readonly addingId = signal<string | null>(null);
+
+  protected readonly recommendedProducts = signal<Product[]>([]);
+  protected readonly loadingRecommendations = signal(true);
 
   ngOnInit(): void {
     this.productService.getProducts({ limit: 8, sort: '-ratingsAvg' }).subscribe({
@@ -54,6 +59,18 @@ export class HomeComponent implements OnInit {
       },
       error: () => this.loadingProducts.set(false),
     });
+
+    if (this.authService.isAuthenticated()) {
+      this.recService.getUserRecommendations(12).subscribe({
+        next: (res) => {
+          this.recommendedProducts.set(res.products as any); // Cast to any to handle Product vs returned type differences if any, though we mapped it in backend
+          this.loadingRecommendations.set(false);
+        },
+        error: () => this.loadingRecommendations.set(false)
+      });
+    } else {
+      this.loadingRecommendations.set(false);
+    }
   }
 
   onHeroMouseMove(event: MouseEvent) {

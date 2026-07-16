@@ -12,13 +12,14 @@ async function handleChat(req, res) {
 
     // Try calling the FastAPI AI agent
     try {
-      const aiUrl = process.env.AI_API_URL || "http://127.0.0.1:8000/chat";
+      const baseUrl = process.env.AI_API_URL || "http://127.0.0.1:8000";
+      const aiUrl = `${baseUrl}/chat`;
       const response = await fetch(aiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          session_id: req.ip || "global_session"
+          session_id: req.user._id || req.user.id || "global_session"
         })
       });
 

@@ -74,6 +74,74 @@
     </div>
   </section>
 
+  <!-- Recommended Products (for logged-in users) -->
+  @if (authService.isAuthenticated()) {
+    <section class="section">
+      <div class="container">
+        <h2 class="section__title" appFadeIn>Recommended for You</h2>
+        <p class="section__subtitle" appFadeIn [delay]="150">Personalized AI recommendations based on your activity</p>
+
+        @if (loadingRecommendations()) {
+          <div class="prod-grid">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="prod-skeleton"></div>
+            }
+          </div>
+        } @else if (recommendedProducts().length > 0) {
+          <div class="prod-grid" appFadeIn [delay]="300">
+            @for (product of recommendedProducts(); track product._id) {
+              <div class="prod-card" appTilt [tiltMax]="15" [tiltScale]="1.03">
+                <button class="wishlist-btn" 
+                        [class.wishlist-btn--active]="wishlistService.isInWishlist(product._id)"
+                        (click)="toggleWishlist(product)"
+                        aria-label="Toggle wishlist">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" 
+                       [attr.fill]="wishlistService.isInWishlist(product._id) ? 'currentColor' : 'none'" 
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </button>
+                <a [routerLink]="['/products', product._id]" class="prod-card__img-wrap">
+                  @if (product.imageCover) {
+                    <img [src]="product.imageCover" [alt]="product.name" class="prod-card__img" loading="lazy" />
+                  } @else {
+                    <div class="prod-card__img-placeholder">📦</div>
+                  }
+                  @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                    <span class="prod-card__discount-badge">
+                      -{{ getDiscountPct(product) }}%
+                    </span>
+                  }
+                </a>
+                <div class="prod-card__body">
+                  <div class="prod-card__rating">
+                    <span class="prod-card__stars">{{ getStars(product.ratingsAvg) }}</span>
+                    <span class="prod-card__rating-count">({{ product.ratingsCount ?? 0 }})</span>
+                  </div>
+                  <a [routerLink]="['/products', product._id]" class="prod-card__name">{{ product.name }}</a>
+                  <div class="prod-card__pricing">
+                    @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                      <span class="prod-card__price-current">${{ product.priceAfterDiscount.toFixed(2) }}</span>
+                      <span class="prod-card__price-original">${{ product.price.toFixed(2) }}</span>
+                    } @else {
+                      <span class="prod-card__price-current">${{ product.price.toFixed(2) }}</span>
+                    }
+                  </div>
+                  <button class="prod-card__add-btn"
+                    [class.prod-card__add-btn--adding]="addingId() === product._id"
+                    [disabled]="addingId() === product._id || product.quantity === 0"
+                    (click)="addToCart(product)">
+                    {{ product.quantity === 0 ? 'Out of stock' : addingId() === product._id ? 'Adding…' : 'Add to cart' }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
   <!-- 4. Testimonials -->
   <app-testimonials></app-testimonials>
 

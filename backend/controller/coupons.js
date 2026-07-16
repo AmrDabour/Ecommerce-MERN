@@ -85,7 +85,7 @@ function applyCoupon(req, res) {
           let discountAmount = (totalBeforeDiscount * coupon.discount) / 100;
           cart.totalPriceAfterDiscount = (totalBeforeDiscount - discountAmount).toFixed(2) * 1;
 
-          return cart.save();
+          return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover price"));
         })
         .then((data) => {
           res.status(200).json({ msg: "coupon applied successfully", data: data });

@@ -50,7 +50,8 @@ export class ProductListComponent implements OnInit {
     });
 
     this.route.queryParams.subscribe(params => {
-      this.selectedCategory = params['category'] || null;
+      const cat = params['category'];
+      this.selectedCategory = cat === 'null' ? null : cat || null;
       this.searchKeyword = params['keyword'] || null;
       this.currentPage.set(1);
       this.loadProducts();

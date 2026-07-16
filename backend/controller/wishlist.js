@@ -43,10 +43,17 @@ async function getLoggedUserWishlist(req, res) {
   try {
     const user = await UserModel.findById(req.user.id).populate("wishlist");
 
+    if (!user) {
+      return res.status(200).json({ status: "success", results: 0, data: [] });
+    }
+
+    // Filter out any null entries (deleted products still referenced)
+    const cleanWishlist = (user.wishlist || []).filter(Boolean);
+
     res.status(200).json({
       status: "success",
-      results: user.wishlist.length,
-      data: user.wishlist,
+      results: cleanWishlist.length,
+      data: cleanWishlist,
     });
   } catch (error) {
     res.status(500).json({ msg: "Error fetching wishlist", error });

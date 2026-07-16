@@ -1,41 +1,25 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from tasks import run_agent_task
+from fastapi import FastAPI
 import sentry_sdk
+from config.settings import settings
 
-sentry_sdk.init(
-    dsn="https://65fdd209b1fae3d86af0bc85d6b33fcc@o4511141177655296.ingest.us.sentry.io/4511746102525952",
-    send_default_pii=True,
-)
+# Import service routers
+from services.chatbot.routes import router as chatbot_router
+from services.recommendations.routes import router as recommendations_router
 
-app = FastAPI(title="E-commerce AI Agent", description="An AI assistant for our web store.")
+# Initialize Sentry if DSN is provided
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        send_default_pii=True,
+    )
 
-class ChatRequest(BaseModel):
-    message: str
-    session_id: str = "default_session"
+app = FastAPI(title="E-commerce AI Services", description="AI assistant and recommendation engine.")
 
-@app.post("/chat")
-async def chat_endpoint(req: ChatRequest):
-    if not req.message:
-        raise HTTPException(status_code=400, detail="Message cannot be empty")
-        
-    try:
-        # Dispatch task to Celery worker via RabbitMQ
-        task = run_agent_task.delay(req.message, req.session_id)
-        
-        # Wait for the worker to complete and return result (synchronous wait for MERN api compatibility)
-        # Timeout after 30 seconds to prevent blocking indefinitely
-        response_text = task.get(timeout=30)
-        
-        return {
-            "response": response_text,
-            "session_id": req.session_id
-        }
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+# Include routers
+app.include_router(chatbot_router)
+app.include_router(recommendations_router)
+
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "services": ["chatbot", "recommendations"]}

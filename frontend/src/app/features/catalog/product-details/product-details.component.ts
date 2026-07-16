@@ -11,6 +11,7 @@ import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { Product } from '../../../core/models/product.model';
 import { Review } from '../../../core/models/review.model';
 import { User } from '../../../core/models/user.model';
+import { RecommendationService } from '../../../core/services/recommendation.service';
 
 @Component({
   selector: 'app-product-details',
@@ -28,6 +29,7 @@ export class ProductDetailsComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  private readonly recService = inject(RecommendationService);
 
   protected readonly product = signal<Product | null>(null);
   protected readonly reviews = signal<Review[]>([]);
@@ -43,26 +45,50 @@ export class ProductDetailsComponent implements OnInit {
     comment: ['', Validators.required],
   });
 
+  protected readonly similarProducts = signal<Product[]>([]);
+  protected readonly loadingSimilar = signal(true);
+
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
+    // React to route parameter changes so clicking similar products works
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id')!;
+      
+      this.loading.set(true);
+      this.loadingReviews.set(true);
+      this.loadingSimilar.set(true);
 
-    this.productService.getProduct(id).subscribe({
-      next: (res) => {
-        this.product.set(res.data);
-        if (res.data.imageCover) {
-          this.activeImage.set(res.data.imageCover);
-        }
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+      this.productService.getProduct(id).subscribe({
+        next: (res) => {
+          this.product.set(res.data);
+          if (res.data.imageCover) {
+            this.activeImage.set(res.data.imageCover);
+          }
+          this.loading.set(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        error: () => this.loading.set(false),
+      });
 
-    this.reviewService.getReviews(id).subscribe({
-      next: (res) => {
-        this.reviews.set(res.data);
-        this.loadingReviews.set(false);
-      },
-      error: () => this.loadingReviews.set(false),
+      this.reviewService.getReviews(id).subscribe({
+        next: (res) => {
+          this.reviews.set(res.data);
+          this.loadingReviews.set(false);
+        },
+        error: () => this.loadingReviews.set(false),
+      });
+
+      this.recService.getSimilarProducts(id, 8).subscribe({
+        next: (res) => {
+          // Filter to only highly similar products (score > 0.80) to ensure logical recommendations
+          // Also remove the current product itself if it's in the list
+          const filtered = res.products.filter((p: any) => 
+            p._id !== id && (p.similarityScore === undefined || p.similarityScore > 0.80)
+          );
+          this.similarProducts.set(filtered.slice(0, 4) as any);
+          this.loadingSimilar.set(false);
+        },
+        error: () => this.loadingSimilar.set(false),
+      });
     });
   }
 

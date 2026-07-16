@@ -1,19 +1,14 @@
-import os
+"""Celery configuration for the AI service."""
 from celery import Celery
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Get broker URL, default to rabbitmq container inside docker-compose network
-BROKER_URL = os.getenv("CELERY_BROKER_URL", "amqp://guest:guest@localhost:5672//")
+from config.settings import settings
 
 # Create Celery app
 # We use rpc:// as result backend because it returns task results directly via transient queues in RabbitMQ
 celery_app = Celery(
     "ai_agent",
-    broker=BROKER_URL,
+    broker=settings.CELERY_BROKER_URL,
     backend="rpc://",
-    include=["tasks"]
+    include=["workers.tasks"]
 )
 
 # Optional configurations

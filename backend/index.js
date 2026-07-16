@@ -18,7 +18,7 @@ const { router: couponRouter } = require("./routes/coupons.js");
 const wishlistRouter = require("./routes/wishlist.js");
 const newsletterRouter = require("./routes/newsletter.js");
 const chatRouter = require("./routes/chat.js");
-
+const recommendationsRouter = require("./routes/recommendations.js");
 //cors>>cross origin
 app.use(
   cors({
@@ -47,7 +47,7 @@ app.use("/coupons", couponRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/newsletter", newsletterRouter);
 app.use("/chat", chatRouter);
-
+app.use("/recommendations", recommendationsRouter);
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
 
