@@ -1,4 +1,6 @@
+require("./instrument.js");
 require("dotenv").config();
+const Sentry = require("@sentry/node");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -45,6 +47,9 @@ app.use("/coupons", couponRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/newsletter", newsletterRouter);
 app.use("/chat", chatRouter);
+
+// The error handler must be registered before any other error middleware and after all controllers
+Sentry.setupExpressErrorHandler(app);
 
 //=====error handling======//
 app.use((err, req, res, next) => {

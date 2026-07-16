@@ -1,6 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from tasks import run_agent_task
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://65fdd209b1fae3d86af0bc85d6b33fcc@o4511141177655296.ingest.us.sentry.io/4511746102525952",
+    send_default_pii=True,
+)
 
 app = FastAPI(title="E-commerce AI Agent", description="An AI assistant for our web store.")
 
