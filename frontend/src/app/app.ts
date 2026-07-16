@@ -5,14 +5,20 @@ import { FooterComponent } from './layout/footer/footer.component';
 import { ToastContainerComponent } from './shared/ui/toast/toast-container.component';
 import { CartDrawer } from './shared/ui/cart-drawer/cart-drawer';
 import { ChatbotComponent } from './shared/ui/chatbot/chatbot';
-import { CustomCursorComponent } from './shared/ui/custom-cursor/custom-cursor';
+import { MobileNavComponent } from './layout/mobile-nav/mobile-nav.component';
+import { routeAnimations } from './shared/animations/route-animations';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, CartDrawer, ChatbotComponent, CustomCursorComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, CartDrawer, ChatbotComponent, MobileNavComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  animations: [routeAnimations]
 })
-export class App {}
+export class App {
+  getRouteAnimationData(outlet: RouterOutlet) {
+    return outlet && outlet.isActivated ? outlet.activatedRoute?.snapshot?.url?.join('/') : '';
+  }
+}

@@ -57,7 +57,7 @@ export class TiltDirective {
     this.renderer.appendChild(this.element, glareWrapper);
   }
 
-  @HostListener('mouseenter', ['$event'])
+  @HostListener('mouseenter')
   onMouseEnter() {
     this.updateElementPosition();
     this.renderer.setStyle(this.element, 'transition', `transform ${this.tiltSpeed}ms cubic-bezier(.03,.98,.52,.99)`);
@@ -95,7 +95,7 @@ export class TiltDirective {
     });
   }
 
-  @HostListener('mouseleave', ['$event'])
+  @HostListener('mouseleave')
   onMouseLeave() {
     if (this.updateCall !== null) cancelAnimationFrame(this.updateCall);
     

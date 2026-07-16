@@ -66,6 +66,22 @@
               </div>
             </div>
 
+            <!-- Coupon Code -->
+            <div class="chk-coupon">
+              <button type="button" class="chk-coupon-toggle" (click)="isCouponExpanded.set(!isCouponExpanded())">
+                <span>🎟️ Have a coupon?</span>
+                <span class="chk-coupon-arrow" [class.chk-coupon-arrow--open]="isCouponExpanded()">▼</span>
+              </button>
+              @if (isCouponExpanded()) {
+                <div [formGroup]="couponForm" class="chk-coupon-form">
+                  <input type="text" formControlName="code" class="form-input" placeholder="Enter code">
+                  <button type="button" class="checkout-submit" style="margin-top: var(--space-2);" (click)="applyCoupon()" [disabled]="couponForm.invalid || applyingCoupon()">
+                    {{ applyingCoupon() ? 'Applying...' : 'Apply' }}
+                  </button>
+                </div>
+              }
+            </div>
+
             <button type="submit" class="checkout-submit" [disabled]="loading() || form.invalid">
               @if (loading()) { <span class="checkout-spinner"></span> }
               {{ loading() ? 'Placing Order…' : 'Place Order' }}

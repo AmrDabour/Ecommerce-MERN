@@ -1,0 +1,33 @@
+<section class="testimonials-section section section--alt">
+  <div class="container">
+    <div class="testimonials-header">
+      <h2 class="section__title">Loved by Thousands</h2>
+      <p class="section__subtitle">Don't just take our word for it. See what our customers say.</p>
+    </div>
+
+    <div class="testimonials-grid">
+      @for (review of testimonials(); track review.id) {
+        <div class="testimonial-card">
+          <div class="testimonial-card__stars">
+            @for (star of [1,2,3,4,5]; track star) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
+                   [attr.fill]="star <= review.rating ? 'currentColor' : 'none'" 
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   class="star-icon" [class.star-icon--filled]="star <= review.rating">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            }
+          </div>
+          <p class="testimonial-card__text">"{{ review.text }}"</p>
+          <div class="testimonial-card__author">
+            <img [src]="review.avatar" [alt]="review.name" class="testimonial-card__avatar">
+            <div class="testimonial-card__info">
+              <span class="testimonial-card__name">{{ review.name }}</span>
+              <span class="testimonial-card__role">{{ review.role }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

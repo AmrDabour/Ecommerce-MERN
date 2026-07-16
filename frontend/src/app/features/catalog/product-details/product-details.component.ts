@@ -35,6 +35,7 @@ export class ProductDetailsComponent implements OnInit {
   protected readonly loadingReviews = signal(true);
   protected readonly adding = signal(false);
   protected readonly submittingReview = signal(false);
+  protected readonly activeImage = signal<string>('');
   protected readonly qty = signal(1);
 
   protected readonly reviewForm = this.fb.group({
@@ -48,6 +49,9 @@ export class ProductDetailsComponent implements OnInit {
     this.productService.getProduct(id).subscribe({
       next: (res) => {
         this.product.set(res.data);
+        if (res.data.imageCover) {
+          this.activeImage.set(res.data.imageCover);
+        }
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -92,6 +96,10 @@ export class ProductDetailsComponent implements OnInit {
 
   protected setRating(star: number): void {
     this.reviewForm.get('rating')?.setValue(star);
+  }
+
+  protected setActiveImage(url: string): void {
+    this.activeImage.set(url);
   }
 
   protected increaseQty(): void {

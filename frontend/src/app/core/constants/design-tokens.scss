@@ -11,6 +11,12 @@
   --color-text-tertiary: #888888;
   --color-text-inverse: #ffffff;
   --color-glass: rgba(255, 255, 255, 0.75);
+  
+  // Custom Cursor (Light Mode - dark transparent)
+  --color-cursor-bg: rgba(0, 0, 0, 0.1);
+  --color-cursor-border: rgba(0, 0, 0, 0.4);
+  --color-cursor-bg-hover: rgba(0, 0, 0, 0.2);
+  --color-cursor-border-hover: rgba(0, 0, 0, 0.8);
 
   &.dark {
     --color-surface: #0a0a0a;
@@ -21,6 +27,12 @@
     --color-text-tertiary: #71717a;
     --color-text-inverse: #000000;
     --color-glass: rgba(10, 10, 10, 0.75);
+    
+    // Custom Cursor (Dark Mode - light transparent)
+    --color-cursor-bg: rgba(255, 255, 255, 0.1);
+    --color-cursor-border: rgba(255, 255, 255, 0.4);
+    --color-cursor-bg-hover: rgba(255, 255, 255, 0.2);
+    --color-cursor-border-hover: rgba(255, 255, 255, 0.8);
     
     --color-border: #27272a;
     --color-border-hover: #3f3f46;

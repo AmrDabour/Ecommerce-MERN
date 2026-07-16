@@ -47,10 +47,16 @@ function createOrder(req, res) {
     });
 }
 
-//get logged user orders
+//get logged user orders (or all orders for admin)
 function getUserOrders(req, res) {
-  OrderModel.find({ user: req.user.id })
+  let filter = {};
+  if (req.user.role !== "admin") {
+    filter = { user: req.user.id };
+  }
+
+  OrderModel.find(filter)
     .populate("orderItems.product", "name imageCover")
+    .populate("user", "name email")
     .sort("-createdAt")
     .then((data) => {
       res.status(200).json({ msg: "orders fetched successfully", data: data });

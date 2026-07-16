@@ -8,6 +8,7 @@ import { CategoryService } from '../../../core/services/category.service';
 import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
+import { WishlistService } from '../../../core/services/wishlist.service';
 import { Product } from '../../../core/models/product.model';
 import { Category } from '../../../core/models/category.model';
 
@@ -24,6 +25,7 @@ export class ProductListComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
+  protected readonly wishlistService = inject(WishlistService);
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
 
@@ -36,6 +38,7 @@ export class ProductListComponent implements OnInit {
   protected readonly filterOpen = signal(false);
 
   protected selectedCategory: string | null = null;
+  protected searchKeyword: string | null = null;
   protected priceMin: number | null = null;
   protected priceMax: number | null = null;
   protected sortBy = '-createdAt';
@@ -46,11 +49,12 @@ export class ProductListComponent implements OnInit {
       next: (res) => this.categories.set(res.data),
     });
 
-    // Check for pre-selected category from route
-    const catId = this.route.snapshot.queryParamMap.get('category');
-    if (catId) this.selectedCategory = catId;
-
-    this.loadProducts();
+    this.route.queryParams.subscribe(params => {
+      this.selectedCategory = params['category'] || null;
+      this.searchKeyword = params['keyword'] || null;
+      this.currentPage.set(1);
+      this.loadProducts();
+    });
   }
 
   protected onFilterChange(): void {
@@ -79,6 +83,7 @@ export class ProductListComponent implements OnInit {
 
   protected clearFilters(): void {
     this.selectedCategory = null;
+    this.searchKeyword = null;
     this.priceMin = null;
     this.priceMax = null;
     this.sortBy = '-createdAt';
@@ -97,6 +102,7 @@ export class ProductListComponent implements OnInit {
     };
 
     if (this.selectedCategory) params['category'] = this.selectedCategory;
+    if (this.searchKeyword) params['keyword'] = this.searchKeyword;
     if (this.priceMin != null) params['price[gte]'] = this.priceMin;
     if (this.priceMax != null) params['price[lte]'] = this.priceMax;
 
@@ -130,6 +136,23 @@ export class ProductListComponent implements OnInit {
     } else {
       this.cartService.addToGuestCart(product._id);
       this.toast.success('Added to cart!');
+    }
+  }
+
+  protected toggleWishlist(product: Product): void {
+    if (!this.authService.isAuthenticated()) {
+      this.toast.error('Please login to add to wishlist');
+      return;
+    }
+    
+    if (this.wishlistService.isInWishlist(product._id)) {
+      this.wishlistService.removeFromWishlist(product._id).subscribe({
+        next: () => this.toast.success('Removed from wishlist')
+      });
+    } else {
+      this.wishlistService.addToWishlist(product._id).subscribe({
+        next: () => this.toast.success('Added to wishlist')
+      });
     }
   }
 }

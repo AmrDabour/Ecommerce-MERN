@@ -33,6 +33,13 @@ export class CheckoutComponent implements OnInit {
     paymentMethod: ['cash' as 'cash' | 'card', Validators.required],
   });
 
+  protected readonly couponForm = this.fb.group({
+    code: ['', Validators.required],
+  });
+
+  protected readonly applyingCoupon = signal(false);
+  protected readonly isCouponExpanded = signal(false);
+
   protected get f() { return this.form.controls; }
 
   ngOnInit(): void {
@@ -60,6 +67,22 @@ export class CheckoutComponent implements OnInit {
       return (item.product as { name: string }).name ?? 'Product';
     }
     return 'Product';
+  }
+
+  protected applyCoupon(): void {
+    if (this.couponForm.invalid) return;
+    this.applyingCoupon.set(true);
+    const code = this.couponForm.value.code!;
+    this.cartService.applyCoupon(code).subscribe({
+      next: () => {
+        this.applyingCoupon.set(false);
+        this.toast.success('Coupon applied successfully!');
+      },
+      error: (err) => {
+        this.applyingCoupon.set(false);
+        this.toast.error(err?.error?.msg ?? 'Invalid or expired coupon.');
+      }
+    });
   }
 
   protected placeOrder(): void {

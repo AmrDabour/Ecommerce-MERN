@@ -1,0 +1,62 @@
+<div class="page-content container wishlist-page">
+  <div class="wishlist-header">
+    <h1 class="wishlist-title">My Wishlist</h1>
+    <p class="wishlist-subtitle">Save your favorite items and buy them later.</p>
+  </div>
+
+  @if (wishlistService.isLoading()) {
+    <div class="wishlist-grid">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="wishlist-skeleton"></div>
+      }
+    </div>
+  } @else if (wishlistService.wishlist().length === 0) {
+    <div class="wishlist-empty">
+      <div class="wishlist-empty__icon">❤️</div>
+      <h2 class="wishlist-empty__title">Your wishlist is empty</h2>
+      <p class="wishlist-empty__desc">Looks like you haven't added anything to your wishlist yet.</p>
+      <a routerLink="/products" class="btn btn--primary">Continue Shopping</a>
+    </div>
+  } @else {
+    <div class="wishlist-grid">
+      @for (product of wishlistService.wishlist(); track product._id) {
+        <div class="prod-card">
+          <button class="wishlist-remove" (click)="removeFromWishlist(product)" aria-label="Remove from wishlist">
+            ✕
+          </button>
+          <a [routerLink]="['/products', product._id]" class="prod-card__img-wrap">
+            @if (product.imageCover) {
+              <img [src]="product.imageCover" [alt]="product.name" class="prod-card__img" loading="lazy" />
+            } @else {
+              <div class="prod-card__img-placeholder">📦</div>
+            }
+            @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+              <span class="prod-card__discount-badge">-{{ getDiscountPct(product) }}%</span>
+            }
+          </a>
+          <div class="prod-card__body">
+            <div class="prod-card__rating">
+              <span class="prod-card__stars">{{ getStars(product.ratingsAvg) }}</span>
+              <span class="prod-card__rating-count">({{ product.ratingsCount ?? 0 }})</span>
+            </div>
+            <a [routerLink]="['/products', product._id]" class="prod-card__name">{{ product.name }}</a>
+            <div class="prod-card__pricing">
+              @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                <span class="prod-card__price-current">${{ product.priceAfterDiscount.toFixed(2) }}</span>
+                <span class="prod-card__price-original">${{ product.price.toFixed(2) }}</span>
+              } @else {
+                <span class="prod-card__price-current">${{ product.price.toFixed(2) }}</span>
+              }
+            </div>
+            <button class="prod-card__add-btn"
+              [class.prod-card__add-btn--adding]="addingId() === product._id"
+              [disabled]="addingId() === product._id || product.quantity === 0"
+              (click)="addToCart(product)">
+              {{ product.quantity === 0 ? 'Out of stock' : addingId() === product._id ? 'Adding…' : 'Move to Cart' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

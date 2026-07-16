@@ -40,6 +40,12 @@ const userSchema = new mongoose.Schema(
       city: { type: String },
       zip: { type: String },
     },
+    wishlist: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "products",
+      },
+    ],
   },
   { timestamps: true },
 );

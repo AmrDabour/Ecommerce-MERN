@@ -4,7 +4,7 @@ const { ProductModel } = require("../models/productModel.js");
 function getProducts(req, res) {
   //copy query and remove special fields
   let queryObj = { ...req.query };
-  let removeFields = ["page", "limit", "sort"];
+  let removeFields = ["page", "limit", "sort", "keyword"];
   removeFields.forEach((field) => delete queryObj[field]);
 
   //filter >>price[gte]=50 becomes {price:{$gte:50}}
@@ -12,7 +12,18 @@ function getProducts(req, res) {
   queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => "$" + match);
   queryObj = JSON.parse(queryStr);
 
-  let query = ProductModel.find(queryObj).populate("category", "name");
+  //keyword search
+  let keywordSearch = {};
+  if (req.query.keyword) {
+    keywordSearch = {
+      $or: [
+        { name: { $regex: req.query.keyword, $options: "i" } },
+        { description: { $regex: req.query.keyword, $options: "i" } }
+      ]
+    };
+  }
+
+  let query = ProductModel.find({ ...queryObj, ...keywordSearch }).populate("category", "name");
 
   //sort
   if (req.query.sort) {

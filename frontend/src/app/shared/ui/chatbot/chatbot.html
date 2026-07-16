@@ -29,15 +29,14 @@
     </div>
 
     <!-- Messages Area -->
-    <div class="chat-window__messages" #scrollMe>
-      @for (msg of messages(); track msg.id) {
+    <div class="chat-window__messages" #messagesContainer>
+      @for (msg of messages(); track $index) {
         <div class="chat-msg" [class.chat-msg--user]="msg.role === 'user'">
           @if (msg.role === 'assistant') {
             <div class="chat-msg__avatar">AI</div>
           }
           <div class="chat-msg__content">
             <p>{{ msg.content }}</p>
-            <span class="chat-msg__time">{{ msg.timestamp | date:'shortTime' }}</span>
           </div>
         </div>
       }
@@ -58,13 +57,13 @@
     <div class="chat-window__input-area">
       <textarea 
         class="chat-window__input" 
-        [ngModel]="userInput()" 
-        (ngModelChange)="userInput.set($event)"
+        [ngModel]="newMessage()" 
+        (ngModelChange)="newMessage.set($event)"
         (keydown)="onKeyDown($event)"
         placeholder="Ask me anything about products..."
         rows="1">
       </textarea>
-      <button class="chat-window__send" (click)="sendMessage()" [disabled]="!userInput().trim() || isTyping()" aria-label="Send Message">
+      <button class="chat-window__send" (click)="sendMessage()" [disabled]="!newMessage().trim() || isTyping()" aria-label="Send Message">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"></line>
           <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>

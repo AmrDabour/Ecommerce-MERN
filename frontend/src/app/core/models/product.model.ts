@@ -24,6 +24,7 @@ export interface ProductQueryParams {
   page?: number;
   limit?: number;
   category?: string;
+  keyword?: string;
 }
 
 export interface CreateProductRequest {

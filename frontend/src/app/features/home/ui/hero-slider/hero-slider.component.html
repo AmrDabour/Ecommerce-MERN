@@ -1,0 +1,48 @@
+<div class="hero-slider">
+  <div class="hero-slider__track">
+    @for (slide of slides; track slide.title; let i = $index) {
+      <div class="hero-slide" 
+           [class.hero-slide--active]="i === activeSlide()"
+           [class.hero-slide--theme-dark]="slide.theme === 'dark'"
+           [class.hero-slide--theme-light]="slide.theme === 'light'"
+           [class.hero-slide--pos-left]="slide.position === 'left'"
+           [class.hero-slide--pos-right]="slide.position === 'right'"
+           [class.hero-slide--pos-center]="slide.position === 'center'">
+        
+        <div class="hero-slide__bg">
+          <img [src]="slide.image" [alt]="slide.title" class="hero-slide__img" />
+          <div class="hero-slide__overlay"></div>
+        </div>
+
+        <div class="container hero-slide__container">
+          <div class="hero-slide__content">
+            <span class="hero-slide__subtitle">{{ slide.subtitle }}</span>
+            <h2 class="hero-slide__title">{{ slide.title }}</h2>
+            <p class="hero-slide__desc">{{ slide.description }}</p>
+            <a [routerLink]="slide.ctaLink" class="hero-slide__btn">{{ slide.ctaText }}</a>
+          </div>
+        </div>
+
+      </div>
+    }
+  </div>
+
+  <div class="hero-slider__controls">
+    <button class="hero-slider__arrow hero-slider__arrow--prev" (click)="prev()" aria-label="Previous slide">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <button class="hero-slider__arrow hero-slider__arrow--next" (click)="next()" aria-label="Next slide">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+  </div>
+
+  <div class="hero-slider__dots">
+    @for (slide of slides; track slide.title; let i = $index) {
+      <button class="hero-slider__dot" 
+              [class.hero-slider__dot--active]="i === activeSlide()"
+              (click)="goTo(i)" 
+              [attr.aria-label]="'Go to slide ' + (i + 1)">
+      </button>
+    }
+  </div>
+</div>

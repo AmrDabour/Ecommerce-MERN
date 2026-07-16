@@ -16,15 +16,39 @@
         </nav>
 
         <div class="pd-layout">
-          <!-- Image -->
-          <div class="pd-image-wrap">
-            @if (product()!.imageCover) {
-              <img [src]="product()!.imageCover" [alt]="product()!.name" class="pd-image" />
-            } @else {
-              <div class="pd-image-placeholder">📦</div>
-            }
-            @if (product()!.priceAfterDiscount && product()!.priceAfterDiscount! < product()!.price) {
-              <span class="pd-discount-badge">-{{ getDiscountPct() }}%</span>
+          <!-- Image Gallery -->
+          <div class="pd-gallery">
+            <div class="pd-gallery__main">
+              @if (activeImage()) {
+                <img [src]="activeImage()" [alt]="product()!.name" class="pd-gallery__main-img" />
+              } @else {
+                <div class="pd-image-placeholder">📦</div>
+              }
+              @if (product()!.priceAfterDiscount && product()!.priceAfterDiscount! < product()!.price) {
+                <span class="pd-discount-badge">-{{ getDiscountPct() }}%</span>
+              }
+            </div>
+
+            <!-- Thumbnail strip -->
+            @if (product()!.images && product()!.images!.length > 0) {
+              <div class="pd-gallery__thumbs">
+                <!-- Cover image as first thumb -->
+                @if (product()!.imageCover) {
+                  <button class="pd-gallery__thumb" 
+                          [class.pd-gallery__thumb--active]="activeImage() === product()!.imageCover"
+                          (click)="setActiveImage(product()!.imageCover!)">
+                    <img [src]="product()!.imageCover" alt="Cover" />
+                  </button>
+                }
+                <!-- Other images -->
+                @for (img of product()!.images; track img) {
+                  <button class="pd-gallery__thumb" 
+                          [class.pd-gallery__thumb--active]="activeImage() === img"
+                          (click)="setActiveImage(img)">
+                    <img [src]="img" alt="Thumbnail" />
+                  </button>
+                }
+              </div>
             }
           </div>
 

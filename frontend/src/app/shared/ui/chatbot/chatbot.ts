@@ -2,7 +2,7 @@ import { Component, inject, ViewChild, ElementRef, AfterViewChecked, signal } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { ChatbotService } from '../../../core/services/chatbot.service';
+import { ChatService, ChatMessage } from '../../../core/services/chat.service';
 
 @Component({
   selector: 'app-chatbot',
@@ -26,15 +26,17 @@ import { ChatbotService } from '../../../core/services/chatbot.service';
   ]
 })
 export class ChatbotComponent implements AfterViewChecked {
-  protected readonly chatbotService = inject(ChatbotService);
+  isOpen = signal(false);
+  messages = signal<ChatMessage[]>([{
+    role: 'assistant',
+    content: "Hi! I'm your AI shopping assistant. How can I help you today?"
+  }]);
+  newMessage = signal('');
+  isTyping = signal(false);
+
+  private readonly chatService = inject(ChatService);
   
-  protected readonly isOpen = this.chatbotService.isOpen;
-  protected readonly messages = this.chatbotService.messages;
-  protected readonly isTyping = this.chatbotService.isTyping;
-  
-  protected userInput = signal('');
-  
-  @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   ngAfterViewChecked() {
     this.scrollToBottom();
@@ -42,26 +44,45 @@ export class ChatbotComponent implements AfterViewChecked {
 
   scrollToBottom(): void {
     try {
-      if (this.myScrollContainer) {
-        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+      if (this.messagesContainer) {
+        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
       }
     } catch(err) { }
   }
 
   toggleChat() {
-    this.chatbotService.toggleChat();
+    this.isOpen.update(v => !v);
   }
 
   closeChat() {
-    this.chatbotService.closeChat();
+    this.isOpen.set(false);
   }
 
   sendMessage() {
-    const msg = this.userInput();
-    if (!msg.trim()) return;
+    const userMsg = this.newMessage();
+    if (!userMsg.trim()) return;
     
-    this.chatbotService.sendMessage(msg);
-    this.userInput.set(''); // Clear input
+    this.messages.update(msgs => [...msgs, { role: 'user', content: userMsg }]);
+    this.newMessage.set('');
+    this.isTyping.set(true);
+
+    // Send to backend
+    this.chatService.sendMessage(userMsg).subscribe({
+      next: (res) => {
+        this.isTyping.set(false);
+        this.messages.update(msgs => [...msgs, {
+          role: 'assistant',
+          content: res.reply
+        }]);
+      },
+      error: () => {
+        this.isTyping.set(false);
+        this.messages.update(msgs => [...msgs, {
+          role: 'assistant',
+          content: "Sorry, I'm having trouble connecting to my brain right now. Please try again later."
+        }]);
+      }
+    });
   }
   
   onKeyDown(event: KeyboardEvent) {

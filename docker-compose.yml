@@ -28,7 +28,6 @@ services:
       - PORT=3000
       - DATA_BASE_URL=mongodb://mongodb:27017/ecommerce
       - JWT_SECRET=supersecretkey12345
-      # Add other necessary backend environment variables here
     depends_on:
       mongodb:
         condition: service_healthy

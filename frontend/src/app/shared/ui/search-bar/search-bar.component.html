@@ -1,0 +1,57 @@
+<div class="search-container" [class.search-container--open]="isOpen()">
+  <button class="search-toggle" (click)="toggleSearch()" aria-label="Search">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+  </button>
+
+  <form class="search-form" (submit)="onSubmit($event)">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Search products..." 
+      [value]="searchQuery()" 
+      (input)="onSearchInput($event)"
+      (focus)="searchQuery().trim() ? showDropdown.set(true) : null"
+    />
+    @if (searchQuery()) {
+      <button type="button" class="search-clear" (click)="searchQuery.set(''); results.set([]); showDropdown.set(false)">
+        ✕
+      </button>
+    }
+  </form>
+
+  @if (showDropdown() && (isLoading() || results().length > 0 || searchQuery().trim())) {
+    <div class="search-dropdown">
+      @if (isLoading()) {
+        <div class="search-loading">Searching...</div>
+      } @else if (results().length > 0) {
+        <div class="search-results">
+          @for (product of results(); track product._id) {
+            <a [routerLink]="['/products', product._id]" class="search-result-item" (click)="closeSearch(); isOpen.set(false)">
+              <div class="search-result-img">
+                @if (product.imageCover) {
+                  <img [src]="product.imageCover" alt="{{ product.name }}" />
+                } @else {
+                  <span>📦</span>
+                }
+              </div>
+              <div class="search-result-info">
+                <div class="search-result-name">{{ product.name }}</div>
+                <div class="search-result-price">${{ (product.priceAfterDiscount || product.price).toFixed(2) }}</div>
+              </div>
+            </a>
+          }
+        </div>
+        <button class="search-view-all" (click)="onSubmit($event)">
+          View all results for "{{ searchQuery() }}"
+        </button>
+      } @else if (!isLoading() && searchQuery().trim()) {
+        <div class="search-no-results">
+          No products found for "{{ searchQuery() }}"
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -13,6 +13,9 @@ const { router: reviewRouter } = require("./routes/reviews.js");
 const { router: cartRouter } = require("./routes/cart.js");
 const { router: orderRouter } = require("./routes/orders.js");
 const { router: couponRouter } = require("./routes/coupons.js");
+const wishlistRouter = require("./routes/wishlist.js");
+const newsletterRouter = require("./routes/newsletter.js");
+const chatRouter = require("./routes/chat.js");
 
 //cors>>cross origin
 app.use(
@@ -34,6 +37,9 @@ app.use("/reviews", reviewRouter);
 app.use("/cart", cartRouter);
 app.use("/orders", orderRouter);
 app.use("/coupons", couponRouter);
+app.use("/wishlist", wishlistRouter);
+app.use("/newsletter", newsletterRouter);
+app.use("/chat", chatRouter);
 
 //=====error handling======//
 app.use((err, req, res, next) => {

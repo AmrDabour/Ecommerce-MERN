@@ -53,9 +53,11 @@
           <div class="footer__col footer__col--newsletter">
             <h4 class="footer__heading">Stay in the Loop</h4>
             <p class="footer__newsletter-desc">Subscribe to get special offers, free giveaways, and updates.</p>
-            <form class="footer__form" (submit)="$event.preventDefault()">
-              <input type="email" placeholder="Your email address" class="footer__input" required>
-              <button type="submit" class="footer__submit">Subscribe</button>
+            <form class="footer__form" (submit)="subscribeToNewsletter(); $event.preventDefault()">
+              <input type="email" placeholder="Your email address" class="footer__input" required [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" [disabled]="isLoading()">
+              <button type="submit" class="footer__submit" [disabled]="isLoading()">
+                {{ isLoading() ? '...' : 'Subscribe' }}
+              </button>
             </form>
           </div>
         </div>

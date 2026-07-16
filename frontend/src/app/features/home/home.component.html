@@ -1,82 +1,13 @@
-<div class="home">
-      <!-- Hero Section -->
-      <section class="hero">
-        <div class="hero__inner container">
-          <div class="hero__content">
-            <span class="hero__badge">New Season / 2026</span>
-            <h1 class="hero__title">
-              Discover premium
-              <span class="hero__title-accent">modern essentials</span>
-              for your lifestyle.
-            </h1>
 <div class="home-wrapper">
-  <!-- Dynamic Hero Banner with Parallax and Orbs -->
-  <section class="hero" (mousemove)="onHeroMouseMove($event)">
-    <div class="hero__orbs">
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
-    </div>
-    
-    <div class="container hero__container">
-      <div class="hero__content" 
-           [style.transform]="'translate3d(' + (heroMouseX() * -30) + 'px, ' + (heroMouseY() * -30) + 'px, 50px)'">
-        <span class="hero__badge" appFadeIn [delay]="100">✨ Next Generation Shopping</span>
-        <h1 class="hero__title" appFadeIn [delay]="300">
-          Unleash Your <br />
-          <span class="hero__title-highlight">Desires</span>
-        </h1>
-        <p class="hero__subtitle" appFadeIn [delay]="500">
-          Discover a curated collection of premium products. 
-          Experience shopping like never before.
-        </p>
-        <div class="hero__actions" appFadeIn [delay]="700">
-          <a routerLink="/products" class="btn btn--primary btn--glow">Shop Collection</a>
-          <a routerLink="/categories" class="btn btn--outline">View Categories</a>
-        </div>
-      </div>
-      <div class="hero__visual" 
-           [style.transform]="'translate3d(' + (heroMouseX() * 40) + 'px, ' + (heroMouseY() * 40) + 'px, 100px)'">
-        <div class="hero__card hero__card--1" appFadeIn [delay]="400"></div>
-        <div class="hero__card hero__card--2" appFadeIn [delay]="600"></div>
-        <div class="hero__card hero__card--3" appFadeIn [delay]="800"></div>
-      </div>
-    </div>
-  </section>
+  <!-- 1. Hero Slider -->
+  <app-hero-slider></app-hero-slider>
 
-  <!-- Categories Section -->
-  <section class="section categories-section">
+  <!-- 2. Promotional Banners -->
+  <app-promo-banners></app-promo-banners>
+
+  <!-- Featured Products -->
+  <section class="section section--alt">
     <div class="container">
-      <h2 class="section__title" appFadeIn>Shop by Category</h2>
-      <p class="section__subtitle" appFadeIn [delay]="150">Explore our wide range of collections</p>
-      
-      @if (loadingCategories()) {
-        <div class="cat-grid">
-          @for (i of [1,2,3,4,5,6]; track i) {
-            <div class="cat-skeleton"></div>
-          }
-        </div>
-      } @else if (categories().length > 0) {
-        <div class="cat-grid" appFadeIn [delay]="300">
-          @for (cat of categories(); track cat._id) {
-            <a [routerLink]="['/categories', cat._id]" class="cat-card" appTilt [tiltMax]="20" [tiltScale]="1.05">
-              @if (cat.image) {
-                <img [src]="cat.image" [alt]="cat.name" class="cat-card__img" loading="lazy" />
-                } @else {
-                  <div class="cat-card__placeholder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                  </div>
-                }
-                <span class="cat-card__name">{{ cat.name }}</span>
-              </a>
-            }
-          </div>
-        }
-      </section>
-
-      <!-- Featured Products -->
-      <section class="section section--alt">
-        <div class="container">
       <h2 class="section__title" appFadeIn>Featured Products</h2>
       <p class="section__subtitle" appFadeIn [delay]="150">Top picks selected just for you</p>
 
@@ -90,82 +21,95 @@
         <div class="prod-grid" appFadeIn [delay]="300">
           @for (product of featuredProducts(); track product._id) {
             <div class="prod-card" appTilt [tiltMax]="15" [tiltScale]="1.03">
-                  <a [routerLink]="['/products', product._id]" class="prod-card__img-wrap">
-                    @if (product.imageCover) {
-                      <img [src]="product.imageCover" [alt]="product.name" class="prod-card__img" loading="lazy" />
-                    } @else {
-                      <div class="prod-card__img-placeholder">📦</div>
-                    }
-                    @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
-                      <span class="prod-card__discount-badge">
-                        -{{ getDiscountPct(product) }}%
-                      </span>
-                    }
-                  </a>
-                  <div class="prod-card__body">
-                    <div class="prod-card__rating">
-                      <span class="prod-card__stars">{{ getStars(product.ratingsAvg) }}</span>
-                      <span class="prod-card__rating-count">({{ product.ratingsCount ?? 0 }})</span>
-                    </div>
-                    <a [routerLink]="['/products', product._id]" class="prod-card__name">{{ product.name }}</a>
-                    <div class="prod-card__pricing">
-                      @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
-                        <span class="prod-card__price-current">${{ product.priceAfterDiscount.toFixed(2) }}</span>
-                        <span class="prod-card__price-original">${{ product.price.toFixed(2) }}</span>
-                      } @else {
-                        <span class="prod-card__price-current">${{ product.price.toFixed(2) }}</span>
-                      }
-                    </div>
-                    <button class="prod-card__add-btn"
-                      [class.prod-card__add-btn--adding]="addingId() === product._id"
-                      [disabled]="addingId() === product._id || product.quantity === 0"
-                      (click)="addToCart(product)">
-                      {{ product.quantity === 0 ? 'Out of stock' : addingId() === product._id ? 'Adding…' : 'Add to cart' }}
-                    </button>
-                  </div>
+              <button class="wishlist-btn" 
+                      [class.wishlist-btn--active]="wishlistService.isInWishlist(product._id)"
+                      (click)="toggleWishlist(product)"
+                      aria-label="Toggle wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" 
+                     [attr.fill]="wishlistService.isInWishlist(product._id) ? 'currentColor' : 'none'" 
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+              <a [routerLink]="['/products', product._id]" class="prod-card__img-wrap">
+                @if (product.imageCover) {
+                  <img [src]="product.imageCover" [alt]="product.name" class="prod-card__img" loading="lazy" />
+                } @else {
+                  <div class="prod-card__img-placeholder">📦</div>
+                }
+                @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                  <span class="prod-card__discount-badge">
+                    -{{ getDiscountPct(product) }}%
+                  </span>
+                }
+              </a>
+              <div class="prod-card__body">
+                <div class="prod-card__rating">
+                  <span class="prod-card__stars">{{ getStars(product.ratingsAvg) }}</span>
+                  <span class="prod-card__rating-count">({{ product.ratingsCount ?? 0 }})</span>
                 </div>
-              }
-            </div>
-            <div class="section__cta-wrap">
-              <a routerLink="/products" class="section__cta">View All Products →</a>
+                <a [routerLink]="['/products', product._id]" class="prod-card__name">{{ product.name }}</a>
+                <div class="prod-card__pricing">
+                  @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                    <span class="prod-card__price-current">${{ product.priceAfterDiscount.toFixed(2) }}</span>
+                    <span class="prod-card__price-original">${{ product.price.toFixed(2) }}</span>
+                  } @else {
+                    <span class="prod-card__price-current">${{ product.price.toFixed(2) }}</span>
+                  }
+                </div>
+                <button class="prod-card__add-btn"
+                  [class.prod-card__add-btn--adding]="addingId() === product._id"
+                  [disabled]="addingId() === product._id || product.quantity === 0"
+                  (click)="addToCart(product)">
+                  {{ product.quantity === 0 ? 'Out of stock' : addingId() === product._id ? 'Adding…' : 'Add to cart' }}
+                </button>
+              </div>
             </div>
           }
         </div>
-      </section>
+        <div class="section__cta-wrap">
+          <a routerLink="/products" class="section__cta">View All Products →</a>
+        </div>
+      }
+    </div>
+  </section>
 
-      <!-- Trust Badges -->
-      <div class="trust-wrap">
-        <section class="trust container">
-          <div class="trust__grid">
-            <div class="trust__item">
-              <div class="trust__icon-wrap">
-                <img src="https://img.icons8.com/fluency/96/truck.png" alt="Free Shipping" class="trust__icon-img">
-              </div>
-              <strong class="trust__title">Free Shipping</strong>
-              <span class="trust__desc">On all orders over $50. Fast & reliable delivery.</span>
-            </div>
-            <div class="trust__item">
-              <div class="trust__icon-wrap">
-                <img src="https://img.icons8.com/fluency/96/refresh.png" alt="Easy Returns" class="trust__icon-img">
-              </div>
-              <strong class="trust__title">Easy Returns</strong>
-              <span class="trust__desc">30-day hassle-free return policy for peace of mind.</span>
-            </div>
-            <div class="trust__item">
-              <div class="trust__icon-wrap">
-                <img src="https://img.icons8.com/fluency/96/shield.png" alt="Secure Payment" class="trust__icon-img">
-              </div>
-              <strong class="trust__title">Secure Payment</strong>
-              <span class="trust__desc">100% protected checkout with 256-bit encryption.</span>
-            </div>
-            <div class="trust__item">
-              <div class="trust__icon-wrap">
-                <img src="https://img.icons8.com/fluency/96/prize.png" alt="Top Quality" class="trust__icon-img">
-              </div>
-              <strong class="trust__title">Premium Quality</strong>
-              <span class="trust__desc">Carefully curated products from top-tier brands.</span>
-            </div>
+  <!-- 4. Testimonials -->
+  <app-testimonials></app-testimonials>
+
+  <!-- Trust Badges -->
+  <section class="trust-wrap">
+    <div class="trust container">
+      <div class="trust__grid">
+        <div class="trust__item" appFadeIn>
+          <div class="trust__icon-wrap">
+            <img src="https://img.icons8.com/fluency/96/truck.png" alt="Free Shipping" class="trust__icon-img">
           </div>
-        </section>
+          <strong class="trust__title">Free Shipping</strong>
+          <span class="trust__desc">On all orders over $50. Fast & reliable delivery.</span>
+        </div>
+        <div class="trust__item" appFadeIn [delay]="100">
+          <div class="trust__icon-wrap">
+            <img src="https://img.icons8.com/fluency/96/refresh.png" alt="Easy Returns" class="trust__icon-img">
+          </div>
+          <strong class="trust__title">Easy Returns</strong>
+          <span class="trust__desc">30-day hassle-free return policy for peace of mind.</span>
+        </div>
+        <div class="trust__item" appFadeIn [delay]="200">
+          <div class="trust__icon-wrap">
+            <img src="https://img.icons8.com/fluency/96/shield.png" alt="Secure Payment" class="trust__icon-img">
+          </div>
+          <strong class="trust__title">Secure Payment</strong>
+          <span class="trust__desc">100% protected checkout with 256-bit encryption.</span>
+        </div>
+        <div class="trust__item" appFadeIn [delay]="300">
+          <div class="trust__icon-wrap">
+            <img src="https://img.icons8.com/fluency/96/prize.png" alt="Top Quality" class="trust__icon-img">
+          </div>
+          <strong class="trust__title">Premium Quality</strong>
+          <span class="trust__desc">Carefully curated products from top-tier brands.</span>
+        </div>
       </div>
     </div>
+  </section>
+</div>

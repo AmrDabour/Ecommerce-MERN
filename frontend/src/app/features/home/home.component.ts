@@ -3,20 +3,30 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
-import { CategoryService } from '../../core/services/category.service';
 import { CartService } from '../../core/services/cart.service';
-import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/ui/toast/toast.service';
+import { AuthService } from '../../core/services/auth.service';
+import { WishlistService } from '../../core/services/wishlist.service';
 import { Product } from '../../core/models/product.model';
-import { Category } from '../../core/models/category.model';
 
 import { TiltDirective } from '../../shared/directives/tilt.directive';
 import { FadeInDirective } from '../../shared/directives/fade-in.directive';
 
+import { HeroSliderComponent } from './ui/hero-slider/hero-slider.component';
+import { PromoBannersComponent } from './ui/promo-banners/promo-banners.component';
+import { TestimonialsComponent } from './ui/testimonials/testimonials.component';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, TiltDirective, FadeInDirective],
+  imports: [
+    RouterLink, 
+    TiltDirective, 
+    FadeInDirective,
+    HeroSliderComponent,
+    PromoBannersComponent,
+    TestimonialsComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -27,26 +37,16 @@ export class HomeComponent implements OnInit {
   protected heroMouseY = signal(0);
   
   private readonly productService = inject(ProductService);
-  private readonly categoryService = inject(CategoryService);
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
+  protected readonly wishlistService = inject(WishlistService);
   private readonly toast = inject(ToastService);
 
-  protected readonly categories = signal<Category[]>([]);
   protected readonly featuredProducts = signal<Product[]>([]);
-  protected readonly loadingCategories = signal(true);
   protected readonly loadingProducts = signal(true);
   protected readonly addingId = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.categoryService.getCategories().subscribe({
-      next: (res) => {
-        this.categories.set(res.data.slice(0, 8));
-        this.loadingCategories.set(false);
-      },
-      error: () => this.loadingCategories.set(false),
-    });
-
     this.productService.getProducts({ limit: 8, sort: '-ratingsAvg' }).subscribe({
       next: (res) => {
         this.featuredProducts.set(res.data);
@@ -89,7 +89,24 @@ export class HomeComponent implements OnInit {
       });
     } else {
       this.cartService.addToGuestCart(product._id);
-      this.toast.success(`"${product.name}" added to cart!`);
+      this.toast.success('Added to cart!');
+    }
+  }
+
+  protected toggleWishlist(product: Product): void {
+    if (!this.authService.isAuthenticated()) {
+      this.toast.error('Please login to add to wishlist');
+      return;
+    }
+    
+    if (this.wishlistService.isInWishlist(product._id)) {
+      this.wishlistService.removeFromWishlist(product._id).subscribe({
+        next: () => this.toast.success('Removed from wishlist')
+      });
+    } else {
+      this.wishlistService.addToWishlist(product._id).subscribe({
+        next: () => this.toast.success('Added to wishlist')
+      });
     }
   }
 }
