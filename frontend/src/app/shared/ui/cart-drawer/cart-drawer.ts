@@ -42,7 +42,7 @@ export class CartDrawer {
     this.cartService.updateQuantity(productId, quantity).subscribe();
   }
 
-  protected removeItem(productId: string) {
-    this.cartService.removeFromCart(productId).subscribe();
+  protected removeItem(itemId: string) {
+    this.cartService.removeItem(itemId).subscribe();
   }
 }

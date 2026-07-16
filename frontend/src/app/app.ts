@@ -4,11 +4,12 @@ import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { ToastContainerComponent } from './shared/ui/toast/toast-container.component';
 import { CartDrawer } from './shared/ui/cart-drawer/cart-drawer';
+import { ChatbotComponent } from './shared/ui/chatbot/chatbot';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, CartDrawer],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, CartDrawer, ChatbotComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',

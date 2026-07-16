@@ -1,0 +1,75 @@
+<!-- Chat Bubble -->
+@if (!isOpen()) {
+  <button class="chatbot-bubble" (click)="toggleChat()" [@bubbleAnimation] aria-label="Open AI Assistant">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <div class="chatbot-bubble__ping"></div>
+  </button>
+}
+
+<!-- Chat Window -->
+@if (isOpen()) {
+  <div class="chat-window" [@chatWindowAnimation]>
+    <!-- Header -->
+    <div class="chat-window__header">
+      <div class="chat-window__header-info">
+        <div class="chat-window__avatar">AI</div>
+        <div>
+          <h3 class="chat-window__title">Lure Assistant</h3>
+          <p class="chat-window__status">Online</p>
+        </div>
+      </div>
+      <button class="chat-window__close" (click)="closeChat()" aria-label="Close Chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="chat-window__messages" #scrollMe>
+      @for (msg of messages(); track msg.id) {
+        <div class="chat-msg" [class.chat-msg--user]="msg.role === 'user'">
+          @if (msg.role === 'assistant') {
+            <div class="chat-msg__avatar">AI</div>
+          }
+          <div class="chat-msg__content">
+            <p>{{ msg.content }}</p>
+            <span class="chat-msg__time">{{ msg.timestamp | date:'shortTime' }}</span>
+          </div>
+        </div>
+      }
+      
+      @if (isTyping()) {
+        <div class="chat-msg">
+          <div class="chat-msg__avatar">AI</div>
+          <div class="chat-msg__content chat-msg__content--typing">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input Area -->
+    <div class="chat-window__input-area">
+      <textarea 
+        class="chat-window__input" 
+        [ngModel]="userInput()" 
+        (ngModelChange)="userInput.set($event)"
+        (keydown)="onKeyDown($event)"
+        placeholder="Ask me anything about products..."
+        rows="1">
+      </textarea>
+      <button class="chat-window__send" (click)="sendMessage()" [disabled]="!userInput().trim() || isTyping()" aria-label="Send Message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+}

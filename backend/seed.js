@@ -173,9 +173,46 @@ async function seed() {
       }
     ];
 
-    for (const prod of productsData) {
-      await new ProductModel(prod).save();
+    // Generate 1000 fake products
+    const adjectives = ["Ergonomic", "Minimalist", "Premium", "Classic", "Modern", "Vintage", "Industrial", "Smart", "Wireless", "Compact", "Luxury", "Ultimate"];
+    const materials = ["Wooden", "Steel", "Aluminum", "Leather", "Cotton", "Plastic", "Glass", "Ceramic", "Titanium", "Carbon Fiber"];
+    const productTypes = [
+      { type: "Chair", category: "Home Decor", image: "https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500&auto=format&fit=crop&q=60" },
+      { type: "Table", category: "Home Decor", image: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=500&auto=format&fit=crop&q=60" },
+      { type: "Lamp", category: "Home Decor", image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&auto=format&fit=crop&q=60" },
+      { type: "Headphones", category: "Audio", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60" },
+      { type: "Watch", category: "Wearables", image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?w=500&auto=format&fit=crop&q=60" },
+      { type: "Speaker", category: "Audio", image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&auto=format&fit=crop&q=60" },
+      { type: "Keyboard", category: "Electronics", image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&auto=format&fit=crop&q=60" },
+      { type: "Smartphone", category: "Electronics", image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60" },
+      { type: "Earbuds", category: "Audio", image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&auto=format&fit=crop&q=60" },
+      { type: "Monitor", category: "Electronics", image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&auto=format&fit=crop&q=60" }
+    ];
+
+    for (let i = 1; i <= 1000; i++) {
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const mat = materials[Math.floor(Math.random() * materials.length)];
+      const prodType = productTypes[Math.floor(Math.random() * productTypes.length)];
+      
+      const price = Math.floor(Math.random() * 900) + 50; // 50 to 950
+      const discount = Math.random() > 0.7 ? Math.floor(price * 0.1) : 0;
+      
+      productsData.push({
+        name: `${adj} ${mat} ${prodType.type} ${i}`,
+        description: `Experience the amazing quality of this ${adj.toLowerCase()} ${prodType.type.toLowerCase()}. Made from premium ${mat.toLowerCase()} to ensure long lasting durability and style. Perfect for your everyday needs.`,
+        price: price,
+        priceAfterDiscount: price - discount,
+        quantity: Math.floor(Math.random() * 100) + 1,
+        imageCover: prodType.image,
+        category: getCatId(prodType.category),
+        ratingsAvg: +(Math.random() * 2 + 3).toFixed(1), // 3.0 to 5.0
+        ratingsCount: Math.floor(Math.random() * 500),
+        sold: Math.floor(Math.random() * 200)
+      });
     }
+
+    console.log(`Inserting ${productsData.length} products...`);
+    await ProductModel.insertMany(productsData);
     console.log("Products seeded successfully.");
 
     // Seed Coupons

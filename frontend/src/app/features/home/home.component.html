@@ -34,27 +34,7 @@
         </div>
       </section>
 
-      <!-- Stats Strip -->
-      <section class="stats container">
-        <div class="stats__grid">
-          <div class="stats__item">
-            <span class="stats__number">500+</span>
-            <span class="stats__label">Products</span>
-          </div>
-          <div class="stats__item">
-            <span class="stats__number">10k+</span>
-            <span class="stats__label">Happy Customers</span>
-          </div>
-          <div class="stats__item">
-            <span class="stats__number">4.9</span>
-            <span class="stats__label">Average Rating</span>
-          </div>
-          <div class="stats__item">
-            <span class="stats__number">Free</span>
-            <span class="stats__label">Shipping Over $50</span>
-          </div>
-        </div>
-      </section>
+
 
       <!-- Categories -->
       <section class="section container">
@@ -74,7 +54,9 @@
                 @if (cat.image) {
                   <img [src]="cat.image" [alt]="cat.name" class="cat-card__img" loading="lazy" />
                 } @else {
-                  <div class="cat-card__placeholder">🏷️</div>
+                  <div class="cat-card__placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                  </div>
                 }
                 <span class="cat-card__name">{{ cat.name }}</span>
               </a>

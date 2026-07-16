@@ -62,7 +62,7 @@ function addToCart(req, res) {
           }
 
           cart.totalPrice = calcTotalPrice(cart.cartItems);
-          return cart.save();
+          return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover"));
         })
         .then((data) => {
           res.status(200).json({ msg: "product added to cart", data: data });
@@ -88,7 +88,7 @@ function updateCartItem(req, res) {
 
       item.quantity = req.body.quantity;
       cart.totalPrice = calcTotalPrice(cart.cartItems);
-      return cart.save();
+      return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover"));
     })
     .then((data) => {
       res.status(200).json({ msg: "cart item updated", data: data });
@@ -111,7 +111,7 @@ function removeCartItem(req, res) {
       );
 
       cart.totalPrice = calcTotalPrice(cart.cartItems);
-      return cart.save();
+      return cart.save().then(savedCart => savedCart.populate("cartItems.product", "name imageCover"));
     })
     .then((data) => {
       res.status(200).json({ msg: "item removed from cart", data: data });

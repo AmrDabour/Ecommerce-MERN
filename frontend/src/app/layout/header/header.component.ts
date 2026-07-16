@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -20,16 +20,16 @@ import { fromEvent, throttleTime } from 'rxjs';
 })
 export class HeaderComponent implements OnInit {
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
-  private readonly cartService = inject(CartService);
+  protected readonly auth = inject(AuthService);
+  protected readonly cart = inject(CartService);
   private readonly cartDrawerService = inject(CartDrawerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
 
-  protected readonly isAuthenticated = this.authService.isAuthenticated;
-  protected readonly user = this.authService.currentUser;
+  protected readonly isAuthenticated = this.auth.isAuthenticated;
+  protected readonly user = this.auth.currentUser;
   protected readonly cartCount = computed(() => {
-    const cart = this.cartService.cart();
+    const cart = this.cart.cart();
     return cart?.cartItems.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
   });
 

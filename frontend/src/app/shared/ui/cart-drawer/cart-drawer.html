@@ -28,18 +28,18 @@
         <div class="drawer__items">
           @for (item of cart()?.cartItems; track item._id) {
             <div class="drawer-item">
-              <img [src]="item.product.imageCover" [alt]="item.product.name" class="drawer-item__img" />
+              <img [src]="$any(item.product).imageCover" [alt]="$any(item.product).name" class="drawer-item__img" />
               <div class="drawer-item__info">
-                <h3 class="drawer-item__name" [routerLink]="['/products', item.product._id]" (click)="drawerService.close()">{{ item.product.name }}</h3>
+                <h3 class="drawer-item__name" [routerLink]="['/products', $any(item.product)._id]" (click)="drawerService.close()">{{ $any(item.product).name }}</h3>
                 <div class="drawer-item__price">{{ item.price | currencyFormat }}</div>
                 <div class="drawer-item__actions">
                   <app-quantity-stepper
                     [quantity]="item.quantity"
                     [min]="1"
                     [max]="99"
-                    (quantityChange)="updateQuantity(item.product._id, $event)"
+                    (quantityChange)="updateQuantity(item._id, $event)"
                   />
-                  <button class="drawer-item__remove" (click)="removeItem(item.product._id)" aria-label="Remove item">
+                  <button class="drawer-item__remove" (click)="removeItem(item._id)" aria-label="Remove item">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                   </button>
                 </div>
@@ -55,7 +55,7 @@
         <div class="drawer__summary">
           <div class="drawer__summary-row">
             <span>Subtotal</span>
-            <strong>{{ cart()?.totalCartPrice | currencyFormat }}</strong>
+            <strong>{{ cart()?.totalPrice | currencyFormat }}</strong>
           </div>
           @if (cart()?.totalPriceAfterDiscount) {
             <div class="drawer__summary-row drawer__summary-row--discount">
