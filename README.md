@@ -38,10 +38,10 @@ Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https:
    This command will spin up:
    - **MongoDB** container.
    - **Backend** container (listening on port 3000).
-   - **Frontend** container (Nginx serving the Angular app on port 80).
+   - **Frontend** container (Nginx serving the Angular app on port 9837).
 
 3. **Access the application:**
-   - Frontend: `http://localhost`
+   - Frontend: `http://localhost:9837`
    - Backend API: `http://localhost:3000`
 
 ### Option 2: Run Locally (Manual)

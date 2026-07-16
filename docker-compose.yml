@@ -30,6 +30,7 @@ services:
       - SECRET=supersecretkey12345
       - AI_API_URL=http://ai:8000/chat
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - FRONTEND_URL=http://localhost:9837
     depends_on:
       mongodb:
         condition: service_healthy
@@ -48,7 +49,7 @@ services:
       dockerfile: Dockerfile
     container_name: lure_frontend
     ports:
-      - "80:80"
+      - "9837:9837"
     depends_on:
       backend:
         condition: service_healthy
@@ -91,7 +92,7 @@ services:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - MONGO_URI=mongodb://mongodb:27017/
       - MONGO_DB_NAME=ecommerce
-      - FRONTEND_URL=http://localhost
+      - FRONTEND_URL=http://localhost:9837
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       rabbitmq:
@@ -114,7 +115,7 @@ services:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - MONGO_URI=mongodb://mongodb:27017/
       - MONGO_DB_NAME=ecommerce
-      - FRONTEND_URL=http://localhost
+      - FRONTEND_URL=http://localhost:9837
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       rabbitmq:

@@ -24,8 +24,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built artifacts from the build stage
 COPY --from=build /app/dist/standalone-app/browser /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
+# Expose port 9837
+EXPOSE 9837
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
