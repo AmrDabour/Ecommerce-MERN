@@ -1,0 +1,74 @@
+@if (drawerService.isOpen()) {
+  <!-- Backdrop -->
+  <div 
+    class="drawer-backdrop" 
+    [@backdropAnimation]="'open'" 
+    (click)="drawerService.close()"
+  ></div>
+
+  <!-- Drawer -->
+  <div class="drawer" [@drawerAnimation]="'open'">
+    <div class="drawer__header">
+      <h2 class="drawer__title">Your Cart</h2>
+      <button class="drawer__close-btn" (click)="drawerService.close()" aria-label="Close cart">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="drawer__content">
+      @if (isEmpty()) {
+        <div class="drawer__empty">
+          <div class="drawer__empty-icon">🛒</div>
+          <p>Your cart is empty.</p>
+          <button class="btn btn--primary" (click)="drawerService.close()" routerLink="/products">
+            Start Shopping
+          </button>
+        </div>
+      } @else {
+        <div class="drawer__items">
+          @for (item of cart()?.cartItems; track item._id) {
+            <div class="drawer-item">
+              <img [src]="item.product.imageCover" [alt]="item.product.name" class="drawer-item__img" />
+              <div class="drawer-item__info">
+                <h3 class="drawer-item__name" [routerLink]="['/products', item.product._id]" (click)="drawerService.close()">{{ item.product.name }}</h3>
+                <div class="drawer-item__price">{{ item.price | currencyFormat }}</div>
+                <div class="drawer-item__actions">
+                  <app-quantity-stepper
+                    [quantity]="item.quantity"
+                    [min]="1"
+                    [max]="99"
+                    (quantityChange)="updateQuantity(item.product._id, $event)"
+                  />
+                  <button class="drawer-item__remove" (click)="removeItem(item.product._id)" aria-label="Remove item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (!isEmpty()) {
+      <div class="drawer__footer">
+        <div class="drawer__summary">
+          <div class="drawer__summary-row">
+            <span>Subtotal</span>
+            <strong>{{ cart()?.totalCartPrice | currencyFormat }}</strong>
+          </div>
+          @if (cart()?.totalPriceAfterDiscount) {
+            <div class="drawer__summary-row drawer__summary-row--discount">
+              <span>Discounted</span>
+              <strong>{{ cart()?.totalPriceAfterDiscount | currencyFormat }}</strong>
+            </div>
+          }
+        </div>
+        <div class="drawer__actions">
+          <a class="btn btn--outline" routerLink="/cart" (click)="drawerService.close()">View Full Cart</a>
+          <a class="btn btn--primary" routerLink="/checkout" (click)="drawerService.close()">Checkout</a>
+        </div>
+      </div>
+    }
+  </div>
+}

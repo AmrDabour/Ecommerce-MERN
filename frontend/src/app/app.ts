@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { ToastContainerComponent } from './shared/ui/toast/toast-container.component';
+import { CartDrawer } from './shared/ui/cart-drawer/cart-drawer';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, CartDrawer],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',

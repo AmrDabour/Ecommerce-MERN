@@ -1,36 +1,74 @@
-import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { CartDrawerService } from '../../shared/ui/cart-drawer/cart-drawer.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { fromEvent, throttleTime } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '(window:scroll)': 'onScroll()',
     '(document:click)': 'onDocumentClick($event)',
   },
 })
-export class HeaderComponent {
-  protected readonly auth = inject(AuthService);
-  protected readonly cart = inject(CartService);
+export class HeaderComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
+  private readonly cartDrawerService = inject(CartDrawerService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
 
-  protected isScrolled = signal(false);
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
+  protected readonly user = this.authService.currentUser;
+  protected readonly cartCount = computed(() => {
+    const cart = this.cartService.cart();
+    return cart?.cartItems.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
+  });
+
+  protected readonly isScrolled = signal(false);
+  protected readonly isDarkMode = signal(false);
   protected mobileMenuOpen = signal(false);
   protected userMenuOpen = signal(false);
 
-  constructor() {
-    // Initialize cart if authenticated
-    if (this.auth.isAuthenticated()) {
-      this.cart.fetchCart().subscribe();
+  ngOnInit(): void {
+    // Check initial theme
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      this.isDarkMode.set(true);
+      this.document.documentElement.classList.add('dark');
+    }
+
+    // Debounce scroll listener
+    fromEvent(window, 'scroll')
+      .pipe(
+        throttleTime(50),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.isScrolled.set(window.scrollY > 20);
+      });
+  }
+
+  protected toggleTheme(): void {
+    this.isDarkMode.update(v => !v);
+    if (this.isDarkMode()) {
+      this.document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      this.document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }
 
-  onScroll(): void {
-    this.isScrolled.set(window.scrollY > 10);
+  protected openCart(): void {
+    this.cartDrawerService.open();
   }
 
   onDocumentClick(event: MouseEvent): void {
