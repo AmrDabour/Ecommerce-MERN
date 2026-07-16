@@ -1,0 +1,53 @@
+<div class="admin-panel">
+      <h1 class="page-title">Orders</h1>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Payment</th>
+              <th>Total</th>
+              <th>Paid</th>
+              <th>Delivered</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order._id) {
+              <tr>
+                <td class="mono">{{ order._id.slice(0,8) }}…</td>
+                <td class="capitalize">{{ order.paymentMethod }}</td>
+                <td class="font-semibold">{{ order.totalPrice | currencyFormat }}</td>
+                <td>
+                  @if (order.isPaid) {
+                    <app-badge variant="success">✓ Paid</app-badge>
+                  } @else {
+                    <app-badge variant="warning">Pending</app-badge>
+                  }
+                </td>
+                <td>
+                  @if (order.isDelivered) {
+                    <app-badge variant="success">Delivered</app-badge>
+                  } @else {
+                    <app-badge variant="info">Transit</app-badge>
+                  }
+                </td>
+                <td class="text-muted">{{ formatDate(order.createdAt) }}</td>
+                <td>
+                  <div class="action-btns">
+                    <a [routerLink]="['/orders', order._id]" class="action-btn action-btn--view">View</a>
+                    @if (!order.isPaid) {
+                      <button class="action-btn action-btn--pay" (click)="markPaid(order)">Pay</button>
+                    }
+                    @if (!order.isDelivered) {
+                      <button class="action-btn action-btn--deliver" (click)="markDelivered(order)">Deliver</button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>

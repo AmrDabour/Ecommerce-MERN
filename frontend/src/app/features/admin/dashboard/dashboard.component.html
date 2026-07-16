@@ -1,0 +1,87 @@
+<div class="dashboard">
+      <h1 class="dashboard__title">Admin Dashboard</h1>
+
+      @if (loading()) {
+        <div class="stats-grid">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="stat-card skeleton"></div>
+          }
+        </div>
+      } @else {
+        <div class="stats-grid">
+          <!-- Total Products -->
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--blue">🛍</div>
+            <div class="stat-card__info">
+              <div class="stat-card__value">{{ stats().products }}</div>
+              <div class="stat-card__label">Total Products</div>
+            </div>
+            <a routerLink="/admin/products" class="stat-card__link">View All →</a>
+          </div>
+
+          <!-- Total Categories -->
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--green">📁</div>
+            <div class="stat-card__info">
+              <div class="stat-card__value">{{ stats().categories }}</div>
+              <div class="stat-card__label">Categories</div>
+            </div>
+            <a routerLink="/admin/categories" class="stat-card__link">View All →</a>
+          </div>
+
+          <!-- Total Orders -->
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--purple">📦</div>
+            <div class="stat-card__info">
+              <div class="stat-card__value">{{ stats().orders }}</div>
+              <div class="stat-card__label">Recent Orders</div>
+            </div>
+            <a routerLink="/admin/orders" class="stat-card__link">View All →</a>
+          </div>
+
+          <!-- Revenue (Mock) -->
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--yellow">💰</div>
+            <div class="stat-card__info">
+              <div class="stat-card__value">\${{ (stats().orders * 125).toFixed(0) }}</div>
+              <div class="stat-card__label">Est. Revenue</div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="dashboard-cards">
+        <div class="dash-panel">
+          <h2 class="dash-panel__title">Quick Actions</h2>
+          <div class="action-grid">
+            <a routerLink="/admin/products" class="action-btn">
+              <span class="action-btn__icon">+</span> Add New Product
+            </a>
+            <a routerLink="/admin/categories" class="action-btn">
+              <span class="action-btn__icon">+</span> Add Category
+            </a>
+            <a routerLink="/admin/coupons" class="action-btn">
+              <span class="action-btn__icon">🏷</span> Manage Coupons
+            </a>
+          </div>
+        </div>
+
+        <div class="dash-panel">
+          <h2 class="dash-panel__title">System Status</h2>
+          <ul class="status-list">
+            <li class="status-item">
+              <span class="status-dot status-dot--active"></span>
+              API Connection <span class="status-ok">Operational</span>
+            </li>
+            <li class="status-item">
+              <span class="status-dot status-dot--active"></span>
+              Database <span class="status-ok">Connected</span>
+            </li>
+            <li class="status-item">
+              <span class="status-dot status-dot--warning"></span>
+              Payment Gateway <span class="status-warn">Test Mode</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>

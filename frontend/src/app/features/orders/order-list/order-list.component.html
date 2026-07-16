@@ -1,0 +1,64 @@
+<div class="page-content container" style="padding-top: calc(var(--header-height) + var(--space-8));">
+      <h1 class="page-title">My Orders</h1>
+
+      @if (loading()) {
+        <div class="orders-list">
+          @for (i of [1,2,3]; track i) {
+            <div class="order-card-skeleton"></div>
+          }
+        </div>
+      } @else if (orders().length === 0) {
+        <div class="orders-empty">
+          <div class="orders-empty__icon">📦</div>
+          <h2 class="orders-empty__title">No orders yet</h2>
+          <p class="orders-empty__desc">You haven't placed any orders yet. Start exploring our collection!</p>
+          <a routerLink="/products" class="orders-empty__btn">Shop Now</a>
+        </div>
+      } @else {
+        <div class="orders-list">
+          @for (order of orders(); track order._id) {
+            <div class="order-card">
+              <div class="order-card__header">
+                <div class="order-card__id-group">
+                  <span class="order-card__label">Order ID:</span>
+                  <span class="order-card__id">{{ order._id.slice(0, 8) }}</span>
+                </div>
+                <div class="order-card__date">{{ formatDate(order.createdAt) }}</div>
+              </div>
+
+              <div class="order-card__body">
+                <div class="order-card__status-col">
+                  <div class="order-card__label">Status</div>
+                  <div class="order-card__badges">
+                    @if (order.isPaid) {
+                      <app-badge variant="success" pill>✓ Paid</app-badge>
+                    } @else {
+                      <app-badge variant="warning" pill>Unpaid</app-badge>
+                    }
+                    @if (order.isDelivered) {
+                      <app-badge variant="success" pill>✓ Delivered</app-badge>
+                    } @else {
+                      <app-badge variant="info" pill>In Transit</app-badge>
+                    }
+                  </div>
+                </div>
+
+                <div class="order-card__total-col">
+                  <div class="order-card__label">Total Amount</div>
+                  <div class="order-card__total">{{ order.totalPrice | currencyFormat }}</div>
+                </div>
+
+                <div class="order-card__items-col">
+                  <div class="order-card__label">Items</div>
+                  <div class="order-card__items-count">{{ order.orderItems.length }} item(s)</div>
+                </div>
+              </div>
+
+              <div class="order-card__footer">
+                <a [routerLink]="['/orders', order._id]" class="order-card__btn">View Details →</a>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>

@@ -1,0 +1,38 @@
+<div class="admin-panel">
+      <h1 class="page-title">Users ({{ users().length }})</h1>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user._id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+                    <span class="font-medium">{{ user.name }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ user.email }}</td>
+                <td class="text-muted">{{ user.phone || '—' }}</td>
+                <td>
+                  @if (user.role === 'admin') {
+                    <app-badge variant="accent">Admin</app-badge>
+                  } @else {
+                    <app-badge variant="neutral">User</app-badge>
+                  }
+                </td>
+                <td class="text-muted">{{ formatDate(user.createdAt) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>

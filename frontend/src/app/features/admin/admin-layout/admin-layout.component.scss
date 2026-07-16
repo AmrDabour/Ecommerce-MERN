@@ -1,0 +1,99 @@
+.admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+      background: var(--color-surface-alt);
+    }
+
+    .admin-sidebar {
+      background: var(--color-surface);
+      border-right: 1px solid var(--color-border);
+      position: sticky;
+      top: var(--header-height);
+      height: calc(100vh - var(--header-height));
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .admin-sidebar__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .admin-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-lg);
+      font-weight: var(--weight-bold);
+      flex-shrink: 0;
+    }
+
+    .admin-info { overflow: hidden; }
+    .admin-name { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-role { font-size: var(--text-xs); color: var(--color-accent); font-weight: var(--weight-medium); }
+
+    .admin-nav {
+      flex: 1;
+      padding: var(--space-6) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .admin-nav__group {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-tertiary);
+      margin-bottom: var(--space-2);
+      padding-left: var(--space-3);
+    }
+
+    .admin-nav__link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      &:hover { background: var(--color-surface-alt); color: var(--color-text); }
+    }
+
+    .admin-nav__link.active {
+      background: var(--color-accent-lighter);
+      color: var(--color-accent);
+    }
+
+    .admin-nav__icon { font-size: 1.1rem; display: flex; align-items: center; justify-content: center; width: 24px; }
+
+    .admin-sidebar__footer {
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .admin-nav__link--exit { color: var(--color-text-tertiary); &:hover { color: var(--color-text); } }
+
+    .admin-main {
+      padding: var(--space-8);
+      overflow-x: hidden;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-layout { grid-template-columns: 1fr; }
+      .admin-sidebar { display: none; } /* Would need a mobile drawer in real app */
+    }

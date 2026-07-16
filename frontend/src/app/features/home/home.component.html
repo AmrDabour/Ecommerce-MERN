@@ -1,0 +1,180 @@
+<div class="home">
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero__inner container">
+          <div class="hero__content">
+            <span class="hero__badge">New Season / 2026</span>
+            <h1 class="hero__title">
+              Discover premium
+              <span class="hero__title-accent">modern essentials</span>
+              for your lifestyle.
+            </h1>
+            <p class="hero__subtitle">
+              Carefully curated electronics, audio gear, wearables, and home decor
+              designed for creators, teams, and everyday productivity.
+            </p>
+            <div class="hero__actions">
+              <a routerLink="/products" class="hero__cta hero__cta--primary">Shop Collection</a>
+              <a routerLink="/products" class="hero__cta hero__cta--secondary">Browse Deals</a>
+            </div>
+          </div>
+
+          <div class="hero__visual">
+            <div class="hero__card hero__card--main">
+              <div class="hero__card-badge">Best Seller</div>
+              <div class="hero__card-name">Premium Products</div>
+              <div class="hero__card-price">Starting at $9.99</div>
+            </div>
+            <div class="hero__card hero__card--accent">
+              <div class="hero__card-label">Limited Offer</div>
+              <div class="hero__card-discount">Up to 40% OFF</div>
+              <div class="hero__card-note">On selected categories this week</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Strip -->
+      <section class="stats container">
+        <div class="stats__grid">
+          <div class="stats__item">
+            <span class="stats__number">500+</span>
+            <span class="stats__label">Products</span>
+          </div>
+          <div class="stats__item">
+            <span class="stats__number">10k+</span>
+            <span class="stats__label">Happy Customers</span>
+          </div>
+          <div class="stats__item">
+            <span class="stats__number">4.9</span>
+            <span class="stats__label">Average Rating</span>
+          </div>
+          <div class="stats__item">
+            <span class="stats__number">Free</span>
+            <span class="stats__label">Shipping Over $50</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categories -->
+      <section class="section container">
+        <h2 class="section__title">Shop by Category</h2>
+        <p class="section__subtitle">Browse our handpicked collections</p>
+
+        @if (loadingCategories()) {
+          <div class="cat-grid">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="cat-skeleton"></div>
+            }
+          </div>
+        } @else if (categories().length > 0) {
+          <div class="cat-grid">
+            @for (cat of categories(); track cat._id) {
+              <a [routerLink]="['/categories', cat._id]" class="cat-card">
+                @if (cat.image) {
+                  <img [src]="cat.image" [alt]="cat.name" class="cat-card__img" loading="lazy" />
+                } @else {
+                  <div class="cat-card__placeholder">🏷️</div>
+                }
+                <span class="cat-card__name">{{ cat.name }}</span>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Featured Products -->
+      <section class="section section--alt">
+        <div class="container">
+          <h2 class="section__title">Featured Products</h2>
+          <p class="section__subtitle">Top picks selected just for you</p>
+
+          @if (loadingProducts()) {
+            <div class="prod-grid">
+              @for (i of [1,2,3,4]; track i) {
+                <div class="prod-skeleton"></div>
+              }
+            </div>
+          } @else if (featuredProducts().length > 0) {
+            <div class="prod-grid">
+              @for (product of featuredProducts(); track product._id) {
+                <div class="prod-card">
+                  <a [routerLink]="['/products', product._id]" class="prod-card__img-wrap">
+                    @if (product.imageCover) {
+                      <img [src]="product.imageCover" [alt]="product.name" class="prod-card__img" loading="lazy" />
+                    } @else {
+                      <div class="prod-card__img-placeholder">📦</div>
+                    }
+                    @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                      <span class="prod-card__discount-badge">
+                        -{{ getDiscountPct(product) }}%
+                      </span>
+                    }
+                  </a>
+                  <div class="prod-card__body">
+                    <div class="prod-card__rating">
+                      <span class="prod-card__stars">{{ getStars(product.ratingsAvg) }}</span>
+                      <span class="prod-card__rating-count">({{ product.ratingsCount ?? 0 }})</span>
+                    </div>
+                    <a [routerLink]="['/products', product._id]" class="prod-card__name">{{ product.name }}</a>
+                    <div class="prod-card__pricing">
+                      @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                        <span class="prod-card__price-current">\${{ product.priceAfterDiscount.toFixed(2) }}</span>
+                        <span class="prod-card__price-original">\${{ product.price.toFixed(2) }}</span>
+                      } @else {
+                        <span class="prod-card__price-current">\${{ product.price.toFixed(2) }}</span>
+                      }
+                    </div>
+                    <button class="prod-card__add-btn"
+                      [class.prod-card__add-btn--adding]="addingId() === product._id"
+                      [disabled]="addingId() === product._id || product.quantity === 0"
+                      (click)="addToCart(product)">
+                      {{ product.quantity === 0 ? 'Out of stock' : addingId() === product._id ? 'Adding…' : 'Add to cart' }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="section__cta-wrap">
+              <a routerLink="/products" class="section__cta">View All Products →</a>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Trust Badges -->
+      <div class="trust-wrap">
+        <section class="trust container">
+          <div class="trust__grid">
+            <div class="trust__item">
+              <div class="trust__icon-wrap">
+                <img src="https://img.icons8.com/fluency/96/truck.png" alt="Free Shipping" class="trust__icon-img">
+              </div>
+              <strong class="trust__title">Free Shipping</strong>
+              <span class="trust__desc">On all orders over $50. Fast & reliable delivery.</span>
+            </div>
+            <div class="trust__item">
+              <div class="trust__icon-wrap">
+                <img src="https://img.icons8.com/fluency/96/refresh.png" alt="Easy Returns" class="trust__icon-img">
+              </div>
+              <strong class="trust__title">Easy Returns</strong>
+              <span class="trust__desc">30-day hassle-free return policy for peace of mind.</span>
+            </div>
+            <div class="trust__item">
+              <div class="trust__icon-wrap">
+                <img src="https://img.icons8.com/fluency/96/shield.png" alt="Secure Payment" class="trust__icon-img">
+              </div>
+              <strong class="trust__title">Secure Payment</strong>
+              <span class="trust__desc">100% protected checkout with 256-bit encryption.</span>
+            </div>
+            <div class="trust__item">
+              <div class="trust__icon-wrap">
+                <img src="https://img.icons8.com/fluency/96/prize.png" alt="Top Quality" class="trust__icon-img">
+              </div>
+              <strong class="trust__title">Premium Quality</strong>
+              <span class="trust__desc">Carefully curated products from top-tier brands.</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>

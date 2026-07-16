@@ -1,0 +1,90 @@
+<div class="admin-page">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">Categories Management</h1>
+          <p class="admin-desc">Organize your store by adding or editing product categories.</p>
+        </div>
+        <button class="btn btn--primary" (click)="openModal()">+ Add Category</button>
+      </div>
+
+      <div class="table-card">
+        @if (loading()) {
+          <div class="table-loading">Loading categories…</div>
+        } @else {
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (cat of categories(); track cat._id) {
+                  <tr>
+                    <td>
+                      <div class="cat-cell">
+                        <div class="cat-img">
+                          @if (cat.image) {
+                            <img [src]="cat.image" alt="" />
+                          } @else {
+                            <span>📁</span>
+                          }
+                        </div>
+                        <span class="cat-name">{{ cat.name }}</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-desc" [title]="cat.description">{{ cat.description || '—' }}</span></td>
+                    <td>{{ formatDate(cat.createdAt) }}</td>
+                    <td>
+                      <div class="action-cell">
+                        <button class="action-btn action-btn--edit" (click)="openModal(cat)">✏️</button>
+                        <button class="action-btn action-btn--delete" (click)="deleteCategory(cat._id)">🗑</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- Modal Overlay -->
+      @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h2 class="modal-title">{{ editingId() ? 'Edit Category' : 'Add New Category' }}</h2>
+              <button class="modal-close" (click)="closeModal()">✕</button>
+            </div>
+            
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-form">
+              <div class="form-group">
+                <label class="form-label" for="name">Category Name</label>
+                <input id="name" type="text" class="form-input" formControlName="name" />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <textarea id="description" class="form-input" formControlName="description" rows="3"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="image">Image URL</label>
+                <input id="image" type="text" class="form-input" formControlName="image" placeholder="https://example.com/cat.jpg" />
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn--outline" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn--primary" [disabled]="form.invalid || saving()">
+                  {{ saving() ? 'Saving…' : 'Save Category' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+    </div>

@@ -1,0 +1,70 @@
+<div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-card__header">
+          <a routerLink="/" class="auth-card__logo">◆ LUXE</a>
+          <h1 class="auth-card__title">Welcome back</h1>
+          <p class="auth-card__subtitle">Sign in to your account to continue</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email address</label>
+            <input id="login-email" type="email" class="form-input"
+              [class.form-input--error]="email.invalid && email.touched"
+              formControlName="email" placeholder="you@example.com" autocomplete="email" />
+            @if (email.invalid && email.touched) {
+              <span class="form-error">
+                @if (email.errors?.['required']) { Email is required. }
+                @else { Please enter a valid email. }
+              </span>
+            }
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <label class="form-label" for="login-password">Password</label>
+            </div>
+            <input id="login-password" type="password" class="form-input"
+              [class.form-input--error]="password.invalid && password.touched"
+              formControlName="password" placeholder="Your password" autocomplete="current-password" />
+            @if (password.invalid && password.touched) {
+              <span class="form-error">Password is required.</span>
+            }
+          </div>
+
+          <div class="form-options">
+            <label class="form-checkbox">
+              <input type="checkbox" formControlName="remember" />
+              <span class="form-checkbox__label">Remember me</span>
+            </label>
+          </div>
+
+          @if (errorMsg()) {
+            <div class="form-server-error" role="alert">{{ errorMsg() }}</div>
+          }
+
+          <button type="submit" id="login-submit-btn" class="auth-btn"
+            [disabled]="loading()" [class.auth-btn--loading]="loading()">
+            @if (loading()) { <span class="auth-btn__spinner"></span> }
+            {{ loading() ? 'Signing in…' : 'Sign in' }}
+          </button>
+        </form>
+
+        <p class="auth-card__footer">
+          Don't have an account?
+          <a routerLink="/register" class="auth-link">Create one →</a>
+        </p>
+
+        <div class="auth-divider">
+          <span>Demo credentials</span>
+        </div>
+        <div class="auth-demos">
+          <button type="button" class="demo-btn" (click)="fillDemo('user')">
+            👤 User: ahmed@example.com
+          </button>
+          <button type="button" class="demo-btn demo-btn--admin" (click)="fillDemo('admin')">
+            🛡 Admin: admin@example.com
+          </button>
+        </div>
+      </div>
+    </div>

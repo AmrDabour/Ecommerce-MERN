@@ -1,0 +1,76 @@
+<div class="admin-page">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">Orders Management</h1>
+          <p class="admin-desc">View and manage all customer orders.</p>
+        </div>
+      </div>
+
+      <div class="table-card">
+        @if (loading()) {
+          <div class="table-loading">Loading orders…</div>
+        } @else {
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                  <th>Delivery</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of orders(); track order._id) {
+                  <tr>
+                    <td>
+                      <a [routerLink]="['/orders', order._id]" class="order-id-link">
+                        #{{ order._id.slice(0, 8) }}
+                      </a>
+                    </td>
+                    <td>
+                      <div class="customer-info">
+                        <span class="customer-name">{{ getUserName(order.user) }}</span>
+                      </div>
+                    </td>
+                    <td>{{ formatDate(order.createdAt) }}</td>
+                    <td class="order-total">{{ order.totalPrice | currencyFormat }}</td>
+                    <td>
+                      @if (order.isPaid) {
+                        <app-badge variant="success" pill>Paid</app-badge>
+                      } @else {
+                        <app-badge variant="warning" pill>Unpaid</app-badge>
+                      }
+                    </td>
+                    <td>
+                      @if (order.isDelivered) {
+                        <app-badge variant="success" pill>Delivered</app-badge>
+                      } @else {
+                        <app-badge variant="info" pill>In Transit</app-badge>
+                      }
+                    </td>
+                    <td>
+                      <div class="action-cell">
+                        <button class="action-btn action-btn--edit" title="Mark as Paid"
+                          [disabled]="order.isPaid || actingId() === order._id"
+                          (click)="markPaid(order._id)">
+                          💰
+                        </button>
+                        <button class="action-btn action-btn--edit" title="Mark as Delivered"
+                          [disabled]="order.isDelivered || actingId() === order._id"
+                          (click)="markDelivered(order._id)">
+                          🚚
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>

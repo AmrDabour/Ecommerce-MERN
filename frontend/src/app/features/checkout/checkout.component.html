@@ -1,0 +1,113 @@
+<div class="page-content container" style="padding-top: calc(var(--header-height) + var(--space-8));">
+      <h1 class="checkout-title">Checkout</h1>
+
+      <div class="checkout-layout">
+        <!-- Form -->
+        <div class="checkout-form-section">
+          <form [formGroup]="form" (ngSubmit)="placeOrder()">
+            <!-- Shipping Address -->
+            <div class="checkout-card">
+              <h2 class="checkout-card__title">📦 Shipping Address</h2>
+
+              <div class="form-group">
+                <label class="form-label" for="street">Street address</label>
+                <input id="street" type="text" class="form-input"
+                  [class.form-input--error]="f['street'].invalid && f['street'].touched"
+                  formControlName="street" placeholder="123 Main St" />
+                @if (f['street'].invalid && f['street'].touched) {
+                  <span class="form-error">Street address is required.</span>
+                }
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="city">City</label>
+                  <input id="city" type="text" class="form-input"
+                    [class.form-input--error]="f['city'].invalid && f['city'].touched"
+                    formControlName="city" placeholder="Cairo" />
+                  @if (f['city'].invalid && f['city'].touched) {
+                    <span class="form-error">City is required.</span>
+                  }
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="zip">ZIP code</label>
+                  <input id="zip" type="text" class="form-input"
+                    formControlName="zip" placeholder="12345" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="checkout-card">
+              <h2 class="checkout-card__title">💳 Payment Method</h2>
+
+              <div class="payment-options">
+                <label class="payment-option" [class.payment-option--selected]="f['paymentMethod'].value === 'cash'">
+                  <input type="radio" formControlName="paymentMethod" value="cash" />
+                  <div class="payment-option__content">
+                    <span class="payment-option__icon">💵</span>
+                    <div>
+                      <div class="payment-option__title">Cash on Delivery</div>
+                      <div class="payment-option__desc">Pay when your order arrives</div>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="payment-option" [class.payment-option--selected]="f['paymentMethod'].value === 'card'">
+                  <input type="radio" formControlName="paymentMethod" value="card" />
+                  <div class="payment-option__content">
+                    <span class="payment-option__icon">💳</span>
+                    <div>
+                      <div class="payment-option__title">Credit / Debit Card</div>
+                      <div class="payment-option__desc">Secure card payment (coming soon)</div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="checkout-submit" [disabled]="loading() || form.invalid">
+              @if (loading()) { <span class="checkout-spinner"></span> }
+              {{ loading() ? 'Placing Order…' : 'Place Order' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="checkout-summary">
+          <h2 class="checkout-card__title" style="margin-bottom: var(--space-5);">🛒 Order Summary</h2>
+
+          @if (cartService.cart()) {
+            <div class="checkout-items">
+              @for (item of cartService.cart()!.cartItems; track item._id) {
+                <div class="checkout-item">
+                  <div class="checkout-item__info">
+                    <span class="checkout-item__qty">×{{ item.quantity }}</span>
+                    <span class="checkout-item__name">{{ getItemName(item) }}</span>
+                  </div>
+                  <span class="checkout-item__price">\${{ (item.price * item.quantity).toFixed(2) }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="checkout-totals">
+              <div class="checkout-total-row">
+                <span>Subtotal</span>
+                <span>\${{ getSubtotal().toFixed(2) }}</span>
+              </div>
+              @if (cartService.cart()!.totalPriceAfterDiscount != null &&
+                   cartService.cart()!.totalPriceAfterDiscount! < getSubtotal()) {
+                <div class="checkout-total-row checkout-total-row--discount">
+                  <span>Discount</span>
+                  <span>-\${{ (getSubtotal() - cartService.cart()!.totalPriceAfterDiscount!).toFixed(2) }}</span>
+                </div>
+              }
+              <div class="checkout-total-row checkout-total-row--total">
+                <strong>Total</strong>
+                <strong>\${{ (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()).toFixed(2) }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>

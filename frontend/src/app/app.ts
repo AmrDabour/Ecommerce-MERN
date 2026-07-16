@@ -9,18 +9,7 @@ import { ToastContainerComponent } from './shared/ui/toast/toast-container.compo
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-header />
-    <main>
-      <router-outlet />
-    </main>
-    <app-footer />
-    <app-toast-container />
-  `,
-  styles: [`
-    main {
-      min-height: 100vh;
-    }
-  `],
+  templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 export class App {}

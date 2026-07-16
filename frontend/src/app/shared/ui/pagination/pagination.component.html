@@ -1,0 +1,23 @@
+<nav class="pagination" aria-label="Pagination">
+      <button
+        class="pagination__btn"
+        [disabled]="currentPage() <= 1"
+        (click)="onPrevious()"
+        aria-label="Previous page"
+      >
+        ← Previous
+      </button>
+
+      <span class="pagination__info">
+        Page {{ currentPage() }}
+      </span>
+
+      <button
+        class="pagination__btn"
+        [disabled]="!hasNextPage()"
+        (click)="onNext()"
+        aria-label="Next page"
+      >
+        Next →
+      </button>
+    </nav>

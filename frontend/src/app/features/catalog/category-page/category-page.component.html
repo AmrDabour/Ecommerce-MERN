@@ -1,0 +1,65 @@
+<div class="category-page">
+      @if (category()) {
+        <div class="category-hero container">
+          <a routerLink="/products" class="category-back">← All Products</a>
+          <h1 class="category-hero__title">{{ category()!.name }}</h1>
+          @if (category()!.description) {
+            <p class="category-hero__desc">{{ category()!.description }}</p>
+          }
+        </div>
+      }
+
+      <div class="container">
+        @if (loading()) {
+          <div class="cat-grid">
+            @for (i of skeletons; track i) {
+              <div style="border:1px solid var(--color-border);border-radius:12px;overflow:hidden;">
+                <app-skeleton height="200px" />
+                <div style="padding:16px;">
+                  <app-skeleton variant="text" width="70%" />
+                  <app-skeleton variant="text" width="40%" style="margin-top:8px;" />
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (products().length === 0) {
+          <div class="cat-empty">
+            <span>📦</span>
+            <p>No products in this category yet.</p>
+            <a routerLink="/products">Browse all products</a>
+          </div>
+        } @else {
+          <div class="cat-grid">
+            @for (product of products(); track product._id) {
+              <div class="product-card" [routerLink]="['/products', product._id]">
+                <div class="product-card__img-wrap">
+                  @if (product.imageCover) {
+                    <img [src]="product.imageCover" [alt]="product.name" loading="lazy" />
+                  } @else {
+                    <div class="product-card__no-img">📷</div>
+                  }
+                  @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                    <app-badge variant="danger" class="product-card__badge">SALE</app-badge>
+                  }
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">{{ product.name }}</h3>
+                  @if ((product.ratingsCount ?? 0) > 0) {
+                    <app-rating-stars [value]="product.ratingsAvg ?? 0" />
+                  }
+                  <div class="product-card__price-row">
+                    @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
+                      <span class="price-old">{{ product.price | currencyFormat }}</span>
+                      <span class="price-sale">{{ product.priceAfterDiscount | currencyFormat }}</span>
+                    } @else {
+                      <span class="price">{{ product.price | currencyFormat }}</span>
+                    }
+                    <button class="cart-btn" (click)="addToCart($event, product)">🛒</button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>

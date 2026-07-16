@@ -1,0 +1,47 @@
+<div class="admin-layout" style="padding-top: calc(var(--header-height));">
+      <!-- Admin Sidebar -->
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar__header">
+          <div class="admin-avatar">
+            {{ authService.currentUser()?.name?.charAt(0)?.toUpperCase() ?? 'A' }}
+          </div>
+          <div class="admin-info">
+            <div class="admin-name">{{ authService.currentUser()?.name }}</div>
+            <div class="admin-role">Administrator</div>
+          </div>
+        </div>
+
+        <nav class="admin-nav">
+          <div class="admin-nav__group">Menu</div>
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">📊</span> Dashboard
+          </a>
+          <a routerLink="/admin/products" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">🛍</span> Products
+          </a>
+          <a routerLink="/admin/categories" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">📁</span> Categories
+          </a>
+          <a routerLink="/admin/orders" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">📦</span> Orders
+          </a>
+          <a routerLink="/admin/users" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">👥</span> Users
+          </a>
+          <a routerLink="/admin/coupons" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">🏷</span> Coupons
+          </a>
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <a routerLink="/" class="admin-nav__link admin-nav__link--exit">
+            <span class="admin-nav__icon">←</span> Back to Store
+          </a>
+        </div>
+      </aside>
+
+      <!-- Admin Main -->
+      <main class="admin-main">
+        <router-outlet />
+      </main>
+    </div>

@@ -1,0 +1,63 @@
+<footer class="footer">
+      <div class="footer__inner container">
+        <div class="footer__grid">
+          <!-- Brand -->
+          <div class="footer__brand">
+            <div class="footer__logo">
+              <img src="https://img.icons8.com/fluency/96/diamond.png" alt="Luxe Logo" class="footer__logo-img">
+              <span class="footer__logo-text">LUXE</span>
+            </div>
+            <p class="footer__tagline">
+              Premium modern essentials for creators, teams, and everyday productivity. We believe in quality without compromise.
+            </p>
+            <div class="footer__socials">
+              <a href="#" class="footer__social-link" title="Twitter">𝕏</a>
+              <a href="#" class="footer__social-link" title="Instagram">📸</a>
+              <a href="#" class="footer__social-link" title="LinkedIn">💼</a>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="footer__col">
+            <h4 class="footer__heading">Shop</h4>
+            <nav class="footer__links">
+              <a routerLink="/products" class="footer__link">All Products</a>
+              <a routerLink="/products" class="footer__link">New Arrivals</a>
+              <a routerLink="/products" class="footer__link">Best Sellers</a>
+              <a routerLink="/products" class="footer__link">Sale Offers</a>
+            </nav>
+          </div>
+
+          <!-- Account -->
+          <div class="footer__col">
+            <h4 class="footer__heading">Account</h4>
+            <nav class="footer__links">
+              <a routerLink="/profile" class="footer__link">My Profile</a>
+              <a routerLink="/orders" class="footer__link">Order History</a>
+              <a routerLink="/cart" class="footer__link">Shopping Cart</a>
+              <a routerLink="/auth/login" class="footer__link">Sign In</a>
+            </nav>
+          </div>
+
+          <!-- Newsletter -->
+          <div class="footer__col footer__col--newsletter">
+            <h4 class="footer__heading">Stay in the Loop</h4>
+            <p class="footer__newsletter-desc">Subscribe to get special offers, free giveaways, and updates.</p>
+            <form class="footer__form" (submit)="$event.preventDefault()">
+              <input type="email" placeholder="Your email address" class="footer__input" required>
+              <button type="submit" class="footer__submit">Subscribe</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p class="footer__copyright">
+            © {{ currentYear }} LUXE Store. All rights reserved.
+          </p>
+          <div class="footer__legal">
+            <a href="#" class="footer__legal-link">Privacy Policy</a>
+            <a href="#" class="footer__legal-link">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>

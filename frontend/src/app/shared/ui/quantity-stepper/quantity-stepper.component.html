@@ -1,0 +1,19 @@
+<div class="stepper" [class.stepper--sm]="size() === 'sm'">
+      <button
+        class="stepper__btn"
+        [disabled]="quantity() <= min()"
+        (click)="decrement()"
+        aria-label="Decrease quantity"
+      >
+        −
+      </button>
+      <span class="stepper__value">{{ quantity() }}</span>
+      <button
+        class="stepper__btn"
+        [disabled]="quantity() >= max()"
+        (click)="increment()"
+        aria-label="Increase quantity"
+      >
+        +
+      </button>
+    </div>

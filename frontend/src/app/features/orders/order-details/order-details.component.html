@@ -1,0 +1,94 @@
+<div class="order-detail-page">
+      <div class="container">
+        <a routerLink="/orders" class="back-link">← My Orders</a>
+
+        @if (loading()) {
+          <div style="margin-top:32px;">
+            <app-skeleton height="32px" width="40%" />
+            <app-skeleton height="200px" style="margin-top:24px;" />
+          </div>
+        } @else if (order()) {
+          <div class="order-detail-header">
+            <div>
+              <h1 class="order-detail__id">Order #{{ order()!._id.slice(0,8) }}</h1>
+              <p class="order-detail__date">Placed on {{ formatDate(order()!.createdAt) }}</p>
+            </div>
+            <div class="order-detail__status-group">
+              @if (order()!.isPaid) {
+                <app-badge variant="success" pill>✓ Paid</app-badge>
+              } @else {
+                <app-badge variant="warning" pill>Awaiting Payment</app-badge>
+              }
+              @if (order()!.isDelivered) {
+                <app-badge variant="success" pill>✓ Delivered</app-badge>
+              } @else {
+                <app-badge variant="info" pill>In Transit</app-badge>
+              }
+            </div>
+          </div>
+
+          <div class="order-detail-layout">
+            <!-- Items -->
+            <div class="order-items-section">
+              <h2 class="section-title">Items Ordered</h2>
+              <div class="order-items-list">
+                @for (item of order()!.orderItems; track $index) {
+                  <div class="order-item-row">
+                    <div class="order-item-row__info">
+                      <span class="order-item-row__name">{{ getItemName(item) }}</span>
+                      <span class="order-item-row__qty">Qty: {{ item.quantity }}</span>
+                    </div>
+                    <span class="order-item-row__price">{{ (item.price * item.quantity) | currencyFormat }}</span>
+                  </div>
+                }
+              </div>
+              <div class="order-total-row">
+                <span>Order Total</span>
+                <span class="order-total-amount">{{ order()!.totalPrice | currencyFormat }}</span>
+              </div>
+            </div>
+
+            <!-- Details Sidebar -->
+            <div class="order-sidebar">
+              <div class="sidebar-card">
+                <h3 class="sidebar-card__title">Shipping Address</h3>
+                <p class="sidebar-card__text">
+                  {{ order()!.shippingAddress.street }}<br />
+                  {{ order()!.shippingAddress.city }}, {{ order()!.shippingAddress.zip }}
+                </p>
+              </div>
+
+              <div class="sidebar-card">
+                <h3 class="sidebar-card__title">Payment</h3>
+                <p class="sidebar-card__text" style="text-transform: capitalize;">
+                  {{ order()!.paymentMethod }}
+                  @if (order()!.paidAt) { <br /><span class="text-xs text-tertiary">Paid {{ formatDate(order()!.paidAt) }}</span> }
+                </p>
+              </div>
+
+              <!-- Admin Actions -->
+              @if (authService.isAdmin()) {
+                <div class="sidebar-card">
+                  <h3 class="sidebar-card__title">Admin Actions</h3>
+                  @if (!order()!.isPaid) {
+                    <button class="admin-action-btn" [disabled]="acting()" (click)="markPaid()">
+                      @if (acting() === 'paid') { … } @else { Mark as Paid }
+                    </button>
+                  }
+                  @if (!order()!.isDelivered) {
+                    <button class="admin-action-btn admin-action-btn--secondary" [disabled]="acting()" (click)="markDelivered()">
+                      @if (acting() === 'delivered') { … } @else { Mark as Delivered }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div style="text-align:center;padding:80px 0;">
+            <h2>Order not found</h2>
+            <a routerLink="/orders">Back to Orders</a>
+          </div>
+        }
+      </div>
+    </div>

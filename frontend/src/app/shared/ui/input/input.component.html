@@ -1,0 +1,35 @@
+<div class="input-group" [class.input-group--error]="error()" [class.input-group--disabled]="isDisabled">
+      @if (label()) {
+        <label class="input-group__label" [attr.for]="inputId()">
+          {{ label() }}
+          @if (required()) {
+            <span class="input-group__required" aria-hidden="true">*</span>
+          }
+        </label>
+      }
+      <div class="input-group__wrapper">
+        @if (prefixIcon()) {
+          <span class="input-group__icon input-group__icon--prefix">{{ prefixIcon() }}</span>
+        }
+        <input
+          class="input-group__input"
+          [id]="inputId()"
+          [type]="type()"
+          [placeholder]="placeholder()"
+          [attr.autocomplete]="autocomplete()"
+          [value]="value"
+          [disabled]="isDisabled"
+          (input)="onInput($event)"
+          (blur)="onTouched()"
+        />
+        @if (suffixIcon()) {
+          <span class="input-group__icon input-group__icon--suffix">{{ suffixIcon() }}</span>
+        }
+      </div>
+      @if (error()) {
+        <span class="input-group__error" role="alert">{{ error() }}</span>
+      }
+      @if (hint() && !error()) {
+        <span class="input-group__hint">{{ hint() }}</span>
+      }
+    </div>

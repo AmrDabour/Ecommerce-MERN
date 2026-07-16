@@ -1,0 +1,122 @@
+<header class="header" [class.header--scrolled]="isScrolled()">
+      <div class="header__inner container">
+        <!-- Logo -->
+        <a routerLink="/" class="header__logo">
+          <img src="https://img.icons8.com/fluency/96/diamond.png" alt="Luxe Logo" class="header__logo-img">
+          <span class="header__logo-text">LUXE</span>
+        </a>
+
+        <!-- Desktop Nav -->
+        <nav class="header__nav" [class.header__nav--open]="mobileMenuOpen()">
+          <a
+            routerLink="/"
+            routerLinkActive="header__nav-link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="header__nav-link"
+            (click)="closeMobileMenu()"
+          >
+            Home
+          </a>
+          <a
+            routerLink="/products"
+            routerLinkActive="header__nav-link--active"
+            class="header__nav-link"
+            (click)="closeMobileMenu()"
+          >
+            Shop
+          </a>
+          @if (auth.isAdmin()) {
+            <a
+              routerLink="/admin"
+              routerLinkActive="header__nav-link--active"
+              class="header__nav-link header__nav-link--admin"
+              (click)="closeMobileMenu()"
+            >
+              🛡 Admin
+            </a>
+          }
+          <!-- Mobile-only auth links -->
+          @if (!auth.isAuthenticated()) {
+            <a routerLink="/login" class="header__nav-link header__nav-link--mobile-only" (click)="closeMobileMenu()">Login</a>
+            <a routerLink="/register" class="header__nav-link header__nav-link--mobile-only header__nav-link--register" (click)="closeMobileMenu()">Register</a>
+          }
+          @if (auth.isAuthenticated()) {
+            <a routerLink="/orders" class="header__nav-link header__nav-link--mobile-only" (click)="closeMobileMenu()">My Orders</a>
+            <a routerLink="/profile" class="header__nav-link header__nav-link--mobile-only" (click)="closeMobileMenu()">Profile</a>
+            <button class="header__nav-link header__nav-link--mobile-only header__nav-logout" (click)="logout()">Logout</button>
+          }
+        </nav>
+
+        <!-- Actions -->
+        <div class="header__actions">
+          <!-- Cart -->
+          <a routerLink="/cart" class="header__action-btn" aria-label="Shopping cart">
+            <span class="header__cart-icon">🛒</span>
+            @if (cart.itemCount() > 0) {
+              <span class="header__cart-badge">{{ cart.itemCount() }}</span>
+            }
+          </a>
+
+          <!-- Auth: Desktop only -->
+          @if (!auth.isAuthenticated()) {
+            <a routerLink="/login" class="header__auth-link">Login</a>
+            <a routerLink="/register" class="header__auth-link header__auth-link--register">Register</a>
+          } @else {
+            <!-- User Avatar Dropdown -->
+            <div class="header__user" [class.header__user--open]="userMenuOpen()">
+              <button
+                class="header__user-btn"
+                (click)="toggleUserMenu()"
+                [attr.aria-expanded]="userMenuOpen()"
+                aria-label="User menu"
+              >
+                <span class="header__user-avatar">
+                  {{ auth.currentUser()?.name?.charAt(0)?.toUpperCase() ?? 'U' }}
+                </span>
+                <span class="header__user-name">{{ (auth.currentUser()?.name || 'User').split(' ')[0] }}</span>
+                <span class="header__user-chevron">▾</span>
+              </button>
+              @if (userMenuOpen()) {
+                <div class="header__user-dropdown" (click)="closeUserMenu()">
+                  <a routerLink="/profile" class="header__dropdown-item">
+                    <span>👤</span> My Profile
+                  </a>
+                  <a routerLink="/orders" class="header__dropdown-item">
+                    <span>📦</span> My Orders
+                  </a>
+                  @if (auth.isAdmin()) {
+                    <a routerLink="/admin" class="header__dropdown-item header__dropdown-item--admin">
+                      <span>🛡</span> Admin Panel
+                    </a>
+                  }
+                  <div class="header__dropdown-divider"></div>
+                  <button class="header__dropdown-item header__dropdown-item--logout" (click)="logout()">
+                    <span>🚪</span> Sign out
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Mobile hamburger -->
+          <button
+            class="header__hamburger"
+            (click)="toggleMobileMenu()"
+            [attr.aria-expanded]="mobileMenuOpen()"
+            aria-label="Toggle navigation menu"
+          >
+            <span class="header__hamburger-line" [class.header__hamburger-line--open1]="mobileMenuOpen()"></span>
+            <span class="header__hamburger-line" [class.header__hamburger-line--open2]="mobileMenuOpen()"></span>
+            <span class="header__hamburger-line" [class.header__hamburger-line--open3]="mobileMenuOpen()"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Backdrop for user dropdown -->
+    @if (userMenuOpen()) {
+      <div class="header__backdrop" (click)="closeUserMenu()"></div>
+    }
+    @if (mobileMenuOpen()) {
+      <div class="header__backdrop" (click)="closeMobileMenu()"></div>
+    }

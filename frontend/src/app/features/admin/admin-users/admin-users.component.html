@@ -1,0 +1,60 @@
+<div class="admin-page">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">Users Management</h1>
+          <p class="admin-desc">View and manage customer and admin accounts.</p>
+        </div>
+      </div>
+
+      <div class="table-card">
+        @if (loading()) {
+          <div class="table-loading">Loading users…</div>
+        } @else {
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of users(); track user._id) {
+                  <tr>
+                    <td>
+                      <div class="user-cell">
+                        <div class="user-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+                        <div class="user-info">
+                          <span class="user-name">{{ user.name }}</span>
+                          <span class="user-email">{{ user.email }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      @if (user.role === 'admin') {
+                        <app-badge variant="accent" pill>Admin</app-badge>
+                      } @else {
+                        <app-badge variant="neutral" pill>Customer</app-badge>
+                      }
+                    </td>
+                    <td>{{ formatDate(user.createdAt) }}</td>
+                    <td>
+                      <div class="action-cell">
+                        <button class="action-btn action-btn--delete" 
+                          (click)="deleteUser(user._id)" 
+                          [disabled]="user.role === 'admin'"
+                          title="Delete User">
+                          🗑
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>

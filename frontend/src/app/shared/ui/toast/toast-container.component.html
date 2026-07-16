@@ -1,0 +1,22 @@
+<div class="toast-container" role="alert" aria-live="polite">
+      @for (toast of toastService.toasts(); track toast.id) {
+        <div class="toast toast--{{ toast.type }}" (click)="toastService.dismiss(toast.id)">
+          <span class="toast__icon">
+            @switch (toast.type) {
+              @case ('success') { ✓ }
+              @case ('error') { ✕ }
+              @case ('warning') { ⚠ }
+              @case ('info') { ℹ }
+            }
+          </span>
+          <span class="toast__message">{{ toast.message }}</span>
+          <button
+            class="toast__close"
+            (click)="$event.stopPropagation(); toastService.dismiss(toast.id)"
+            aria-label="Dismiss notification"
+          >
+            ✕
+          </button>
+        </div>
+      }
+    </div>
