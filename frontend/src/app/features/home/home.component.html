@@ -119,10 +119,10 @@
                     <a [routerLink]="['/products', product._id]" class="prod-card__name">{{ product.name }}</a>
                     <div class="prod-card__pricing">
                       @if (product.priceAfterDiscount && product.priceAfterDiscount < product.price) {
-                        <span class="prod-card__price-current">\${{ product.priceAfterDiscount.toFixed(2) }}</span>
-                        <span class="prod-card__price-original">\${{ product.price.toFixed(2) }}</span>
+                        <span class="prod-card__price-current">${{ product.priceAfterDiscount.toFixed(2) }}</span>
+                        <span class="prod-card__price-original">${{ product.price.toFixed(2) }}</span>
                       } @else {
-                        <span class="prod-card__price-current">\${{ product.price.toFixed(2) }}</span>
+                        <span class="prod-card__price-current">${{ product.price.toFixed(2) }}</span>
                       }
                     </div>
                     <button class="prod-card__add-btn"

@@ -39,7 +39,7 @@
                   <a [routerLink]="['/products', getProductId(item)]" class="cart-item__name">
                     {{ getProduct(item)?.name ?? 'Product' }}
                   </a>
-                  <div class="cart-item__unit-price">\${{ item.price.toFixed(2) }} each</div>
+                  <div class="cart-item__unit-price">${{ item.price.toFixed(2) }} each</div>
                 </div>
                 <div class="cart-item__qty">
                   <button class="qty-btn" (click)="updateQty(item, item.quantity - 1)"
@@ -48,7 +48,7 @@
                   <button class="qty-btn" (click)="updateQty(item, item.quantity + 1)"
                     [disabled]="updatingId() === item._id">+</button>
                 </div>
-                <div class="cart-item__total">\${{ (item.price * item.quantity).toFixed(2) }}</div>
+                <div class="cart-item__total">${{ (item.price * item.quantity).toFixed(2) }}</div>
                 <button class="cart-item__remove" (click)="removeItem(item._id)"
                   [disabled]="removingId() === item._id"
                   aria-label="Remove item">
@@ -78,18 +78,18 @@
             <div class="cart-summary__rows">
               <div class="cart-summary__row">
                 <span>Subtotal</span>
-                <span>\${{ getSubtotal().toFixed(2) }}</span>
+                <span>${{ getSubtotal().toFixed(2) }}</span>
               </div>
               @if (cartService.cart()!.totalPriceAfterDiscount != null &&
                    cartService.cart()!.totalPriceAfterDiscount! < getSubtotal()) {
                 <div class="cart-summary__row cart-summary__row--discount">
                   <span>Coupon discount</span>
-                  <span>-\${{ (getSubtotal() - cartService.cart()!.totalPriceAfterDiscount!).toFixed(2) }}</span>
+                  <span>-${{ (getSubtotal() - cartService.cart()!.totalPriceAfterDiscount!).toFixed(2) }}</span>
                 </div>
               }
               <div class="cart-summary__row cart-summary__row--total">
                 <span>Total</span>
-                <strong>\${{ (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()).toFixed(2) }}</strong>
+                <strong>${{ (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()).toFixed(2) }}</strong>
               </div>
             </div>
 

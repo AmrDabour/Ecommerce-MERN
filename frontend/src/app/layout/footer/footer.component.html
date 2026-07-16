@@ -4,7 +4,17 @@
           <!-- Brand -->
           <div class="footer__brand">
             <div class="footer__logo">
-              <img src="https://img.icons8.com/fluency/96/diamond.png" alt="Luxe Logo" class="footer__logo-img">
+              <svg class="footer__logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="luxe-grad-footer" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#10b981" />
+                    <stop offset="100%" stop-color="#047857" />
+                  </linearGradient>
+                </defs>
+                <path class="luxe-diamond" d="M50 5 L95 40 L50 95 L5 40 Z" fill="url(#luxe-grad-footer)" />
+                <path class="luxe-highlight" d="M50 5 L95 40 L50 95 Z" fill="rgba(255,255,255,0.25)" />
+                <polygon class="luxe-sparkle" points="50,25 53,35 63,38 53,41 50,51 47,41 37,38 47,35" fill="white" opacity="0" />
+              </svg>
               <span class="footer__logo-text">LUXE</span>
             </div>
             <p class="footer__tagline">

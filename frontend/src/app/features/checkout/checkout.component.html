@@ -85,7 +85,7 @@
                     <span class="checkout-item__qty">×{{ item.quantity }}</span>
                     <span class="checkout-item__name">{{ getItemName(item) }}</span>
                   </div>
-                  <span class="checkout-item__price">\${{ (item.price * item.quantity).toFixed(2) }}</span>
+                  <span class="checkout-item__price">${{ (item.price * item.quantity).toFixed(2) }}</span>
                 </div>
               }
             </div>
@@ -93,18 +93,18 @@
             <div class="checkout-totals">
               <div class="checkout-total-row">
                 <span>Subtotal</span>
-                <span>\${{ getSubtotal().toFixed(2) }}</span>
+                <span>${{ getSubtotal().toFixed(2) }}</span>
               </div>
               @if (cartService.cart()!.totalPriceAfterDiscount != null &&
                    cartService.cart()!.totalPriceAfterDiscount! < getSubtotal()) {
                 <div class="checkout-total-row checkout-total-row--discount">
                   <span>Discount</span>
-                  <span>-\${{ (getSubtotal() - cartService.cart()!.totalPriceAfterDiscount!).toFixed(2) }}</span>
+                  <span>-${{ (getSubtotal() - cartService.cart()!.totalPriceAfterDiscount!).toFixed(2) }}</span>
                 </div>
               }
               <div class="checkout-total-row checkout-total-row--total">
                 <strong>Total</strong>
-                <strong>\${{ (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()).toFixed(2) }}</strong>
+                <strong>${{ (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()).toFixed(2) }}</strong>
               </div>
             </div>
           }

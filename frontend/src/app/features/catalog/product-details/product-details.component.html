@@ -44,11 +44,11 @@
 
             <div class="pd-info__pricing">
               @if (product()!.priceAfterDiscount && product()!.priceAfterDiscount! < product()!.price) {
-                <span class="pd-price-current">\${{ product()!.priceAfterDiscount!.toFixed(2) }}</span>
-                <span class="pd-price-original">\${{ product()!.price.toFixed(2) }}</span>
-                <span class="pd-price-save">Save \${{ (product()!.price - product()!.priceAfterDiscount!).toFixed(2) }}</span>
+                <span class="pd-price-current">${{ product()!.priceAfterDiscount!.toFixed(2) }}</span>
+                <span class="pd-price-original">${{ product()!.price.toFixed(2) }}</span>
+                <span class="pd-price-save">Save ${{ (product()!.price - product()!.priceAfterDiscount!).toFixed(2) }}</span>
               } @else {
-                <span class="pd-price-current">\${{ product()!.price.toFixed(2) }}</span>
+                <span class="pd-price-current">${{ product()!.price.toFixed(2) }}</span>
               }
             </div>
 
