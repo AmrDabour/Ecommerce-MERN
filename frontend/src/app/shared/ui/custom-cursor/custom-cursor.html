@@ -1,0 +1,12 @@
+<div 
+  class="cursor-dot" 
+  [class.hidden]="isHidden()"
+  [style.transform]="'translate3d(' + mouseX() + 'px, ' + mouseY() + 'px, 0)'"
+></div>
+
+<div 
+  class="cursor-aura" 
+  [class.hidden]="isHidden()"
+  [class.hovering]="isHovering()"
+  [style.transform]="'translate3d(' + trailingX() + 'px, ' + trailingY() + 'px, 0)'"
+></div>

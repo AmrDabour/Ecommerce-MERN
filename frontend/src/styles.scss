@@ -25,6 +25,20 @@ body {
   color: var(--color-text);
   background-color: var(--color-surface);
   min-height: 100vh;
+  cursor: none;
+}
+
+/* Ensure cursor shows on elements if custom cursor fails or on touch devices */
+@media (max-width: 1024px) {
+  body, a, button, input, textarea, select {
+    cursor: auto !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  a, button, input, textarea, select, [role="button"] {
+    cursor: none !important;
+  }
 }
 
 img {

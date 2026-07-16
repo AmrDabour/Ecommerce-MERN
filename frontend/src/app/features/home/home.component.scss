@@ -4,15 +4,84 @@
 
     /* Hero */
     .hero {
-      background: linear-gradient(135deg, var(--color-accent-lighter) 0%, var(--color-surface) 60%);
-      padding: var(--space-20) 0;
+      position: relative;
+      min-height: calc(100vh - var(--header-height, 80px));
+      display: flex;
+      align-items: center;
+      background: var(--color-background);
+      overflow: hidden;
+      perspective: 1000px; /* Enable 3D space */
     }
 
-    .hero__inner {
+    /* Floating Orbs Background */
+    .hero__orbs {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float 20s infinite ease-in-out alternate;
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: rgba(var(--color-accent-rgb), 0.3);
+      top: -10%;
+      left: -10%;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 300px;
+      height: 300px;
+      background: rgba(139, 92, 246, 0.2); /* Purple accent */
+      bottom: -10%;
+      right: -5%;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 250px;
+      height: 250px;
+      background: rgba(16, 185, 129, 0.2);
+      top: 40%;
+      left: 50%;
+      animation-delay: -10s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate(50px, -50px) scale(1.1) rotate(120deg); }
+      66% { transform: translate(-30px, 30px) scale(0.9) rotate(240deg); }
+      100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+    }
+
+    .hero__container {
+      position: relative;
+      z-index: 1;
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: var(--space-12);
-      align-items: center;
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+      transform-style: preserve-3d; /* Keep child 3D transforms */
+      
+      @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+      }
+    }
+
+    .hero__content {
+      max-width: 600px;
+      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
     }
 
     .hero__badge {
@@ -75,57 +144,66 @@
     }
 
     .hero__visual {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
+      position: relative;
+      height: 400px;
+      display: none;
+      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+      transform-style: preserve-3d;
+      
+      @media (min-width: 768px) {
+        display: block;
+      }
     }
 
     .hero__card {
-      padding: var(--space-6);
-      border-radius: var(--radius-lg);
-      animation: fadeInUp 600ms ease both;
-    }
-
-    .hero__card--main {
+      position: absolute;
+      border-radius: var(--radius-2xl);
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      box-shadow: var(--shadow-lg);
-      animation-delay: 200ms;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      transform-style: preserve-3d;
+      transition: all 0.5s ease;
     }
 
-    .hero__card--accent {
-      background: var(--color-accent-light);
-      border: 1px solid rgba(4, 120, 87, 0.15);
-      animation-delay: 400ms;
+    .hero__card--1 {
+      width: 280px;
+      height: 380px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateZ(0);
+      background: linear-gradient(135deg, rgba(var(--color-surface-rgb), 0.9), rgba(var(--color-surface-alt-rgb), 0.8));
+      z-index: 2;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 1px;
+        border-radius: inherit;
+        background: url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80') center/cover;
+        opacity: 0.8;
+      }
     }
 
-    .hero__card-badge, .hero__card-label {
-      font-size: var(--text-xs);
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--color-text-tertiary);
+    .hero__card--2 {
+      width: 220px;
+      height: 300px;
+      top: 10%;
+      right: 0%;
+      transform: translate(20%, -10%) translateZ(-50px) rotate(10deg);
+      background: linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.8), rgba(var(--color-accent-rgb), 0.4));
+      z-index: 1;
     }
 
-    .hero__card-label { color: var(--color-accent); }
-
-    .hero__card-name {
-      font-size: var(--text-xl);
-      font-weight: var(--weight-bold);
-      margin-top: var(--space-2);
-    }
-
-    .hero__card-price, .hero__card-discount {
-      font-size: var(--text-2xl);
-      font-weight: var(--weight-extrabold);
-      margin-top: var(--space-2);
-    }
-
-    .hero__card-discount { color: var(--color-accent); }
-
-    .hero__card-note {
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-      margin-top: var(--space-1);
+    .hero__card--3 {
+      width: 200px;
+      height: 260px;
+      bottom: 5%;
+      left: 5%;
+      transform: translate(-20%, 10%) translateZ(50px) rotate(-15deg);
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(139, 92, 246, 0.4));
+      z-index: 3;
     }
 
     /* Stats */
@@ -383,36 +461,6 @@
     }
 
     /* Trust */
-    .hero {
-      position: relative;
-      background: var(--color-surface);
-      overflow: hidden;
-      padding: calc(var(--space-20) + var(--header-height)) 0 var(--space-20);
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at 50% 50%, rgba(var(--color-accent-rgb), 0.15), transparent 60%),
-                    radial-gradient(circle at 80% 20%, rgba(var(--color-accent-rgb), 0.1), transparent 50%),
-                    radial-gradient(circle at 20% 80%, rgba(var(--color-accent-rgb), 0.05), transparent 50%);
-        animation: rotateMesh 20s linear infinite;
-        z-index: 0;
-      }
-
-      .container {
-        position: relative;
-        z-index: 1;
-      }
-    }
-
-    @keyframes rotateMesh {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
     .trust-wrap {
       background: var(--color-surface-alt);
       padding: var(--space-20) 0;

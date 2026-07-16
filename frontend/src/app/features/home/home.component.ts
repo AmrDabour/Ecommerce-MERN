@@ -10,15 +10,22 @@ import { ToastService } from '../../shared/ui/toast/toast.service';
 import { Product } from '../../core/models/product.model';
 import { Category } from '../../core/models/category.model';
 
+import { TiltDirective } from '../../shared/directives/tilt.directive';
+import { FadeInDirective } from '../../shared/directives/fade-in.directive';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TiltDirective, FadeInDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
+  // Parallax signals
+  protected heroMouseX = signal(0);
+  protected heroMouseY = signal(0);
+  
   private readonly productService = inject(ProductService);
   private readonly categoryService = inject(CategoryService);
   private readonly cartService = inject(CartService);
@@ -47,6 +54,14 @@ export class HomeComponent implements OnInit {
       },
       error: () => this.loadingProducts.set(false),
     });
+  }
+
+  onHeroMouseMove(event: MouseEvent) {
+    // Calculate values between -1 and 1 based on mouse position relative to window center
+    const x = (event.clientX / window.innerWidth - 0.5) * 2;
+    const y = (event.clientY / window.innerHeight - 0.5) * 2;
+    this.heroMouseX.set(x);
+    this.heroMouseY.set(y);
   }
 
   protected getStars(avg?: number): string {

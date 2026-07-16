@@ -9,50 +9,59 @@
               <span class="hero__title-accent">modern essentials</span>
               for your lifestyle.
             </h1>
-            <p class="hero__subtitle">
-              Carefully curated electronics, audio gear, wearables, and home decor
-              designed for creators, teams, and everyday productivity.
-            </p>
-            <div class="hero__actions">
-              <a routerLink="/products" class="hero__cta hero__cta--primary">Shop Collection</a>
-              <a routerLink="/products" class="hero__cta hero__cta--secondary">Browse Deals</a>
-            </div>
-          </div>
-
-          <div class="hero__visual">
-            <div class="hero__card hero__card--main">
-              <div class="hero__card-badge">Best Seller</div>
-              <div class="hero__card-name">Premium Products</div>
-              <div class="hero__card-price">Starting at $9.99</div>
-            </div>
-            <div class="hero__card hero__card--accent">
-              <div class="hero__card-label">Limited Offer</div>
-              <div class="hero__card-discount">Up to 40% OFF</div>
-              <div class="hero__card-note">On selected categories this week</div>
-            </div>
-          </div>
+<div class="home-wrapper">
+  <!-- Dynamic Hero Banner with Parallax and Orbs -->
+  <section class="hero" (mousemove)="onHeroMouseMove($event)">
+    <div class="hero__orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    
+    <div class="container hero__container">
+      <div class="hero__content" 
+           [style.transform]="'translate3d(' + (heroMouseX() * -30) + 'px, ' + (heroMouseY() * -30) + 'px, 50px)'">
+        <span class="hero__badge" appFadeIn [delay]="100">✨ Next Generation Shopping</span>
+        <h1 class="hero__title" appFadeIn [delay]="300">
+          Unleash Your <br />
+          <span class="hero__title-highlight">Desires</span>
+        </h1>
+        <p class="hero__subtitle" appFadeIn [delay]="500">
+          Discover a curated collection of premium products. 
+          Experience shopping like never before.
+        </p>
+        <div class="hero__actions" appFadeIn [delay]="700">
+          <a routerLink="/products" class="btn btn--primary btn--glow">Shop Collection</a>
+          <a routerLink="/categories" class="btn btn--outline">View Categories</a>
         </div>
-      </section>
+      </div>
+      <div class="hero__visual" 
+           [style.transform]="'translate3d(' + (heroMouseX() * 40) + 'px, ' + (heroMouseY() * 40) + 'px, 100px)'">
+        <div class="hero__card hero__card--1" appFadeIn [delay]="400"></div>
+        <div class="hero__card hero__card--2" appFadeIn [delay]="600"></div>
+        <div class="hero__card hero__card--3" appFadeIn [delay]="800"></div>
+      </div>
+    </div>
+  </section>
 
-
-
-      <!-- Categories -->
-      <section class="section container">
-        <h2 class="section__title">Shop by Category</h2>
-        <p class="section__subtitle">Browse our handpicked collections</p>
-
-        @if (loadingCategories()) {
-          <div class="cat-grid">
-            @for (i of [1,2,3,4]; track i) {
-              <div class="cat-skeleton"></div>
-            }
-          </div>
-        } @else if (categories().length > 0) {
-          <div class="cat-grid">
-            @for (cat of categories(); track cat._id) {
-              <a [routerLink]="['/categories', cat._id]" class="cat-card">
-                @if (cat.image) {
-                  <img [src]="cat.image" [alt]="cat.name" class="cat-card__img" loading="lazy" />
+  <!-- Categories Section -->
+  <section class="section categories-section">
+    <div class="container">
+      <h2 class="section__title" appFadeIn>Shop by Category</h2>
+      <p class="section__subtitle" appFadeIn [delay]="150">Explore our wide range of collections</p>
+      
+      @if (loadingCategories()) {
+        <div class="cat-grid">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="cat-skeleton"></div>
+          }
+        </div>
+      } @else if (categories().length > 0) {
+        <div class="cat-grid" appFadeIn [delay]="300">
+          @for (cat of categories(); track cat._id) {
+            <a [routerLink]="['/categories', cat._id]" class="cat-card" appTilt [tiltMax]="20" [tiltScale]="1.05">
+              @if (cat.image) {
+                <img [src]="cat.image" [alt]="cat.name" class="cat-card__img" loading="lazy" />
                 } @else {
                   <div class="cat-card__placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
@@ -68,19 +77,19 @@
       <!-- Featured Products -->
       <section class="section section--alt">
         <div class="container">
-          <h2 class="section__title">Featured Products</h2>
-          <p class="section__subtitle">Top picks selected just for you</p>
+      <h2 class="section__title" appFadeIn>Featured Products</h2>
+      <p class="section__subtitle" appFadeIn [delay]="150">Top picks selected just for you</p>
 
-          @if (loadingProducts()) {
-            <div class="prod-grid">
-              @for (i of [1,2,3,4]; track i) {
-                <div class="prod-skeleton"></div>
-              }
-            </div>
-          } @else if (featuredProducts().length > 0) {
-            <div class="prod-grid">
-              @for (product of featuredProducts(); track product._id) {
-                <div class="prod-card">
+      @if (loadingProducts()) {
+        <div class="prod-grid">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="prod-skeleton"></div>
+          }
+        </div>
+      } @else if (featuredProducts().length > 0) {
+        <div class="prod-grid" appFadeIn [delay]="300">
+          @for (product of featuredProducts(); track product._id) {
+            <div class="prod-card" appTilt [tiltMax]="15" [tiltScale]="1.03">
                   <a [routerLink]="['/products', product._id]" class="prod-card__img-wrap">
                     @if (product.imageCover) {
                       <img [src]="product.imageCover" [alt]="product.name" class="prod-card__img" loading="lazy" />
