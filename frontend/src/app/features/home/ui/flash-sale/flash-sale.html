@@ -1,0 +1,36 @@
+@if (flashProducts().length > 0) {
+  <section class="flash-sale section" appFadeIn>
+    <div class="container">
+      <div class="flash-sale__header">
+        <div class="flash-sale__title-wrap">
+          <h2 class="flash-sale__title">⚡ Flash Sales</h2>
+          <p class="flash-sale__subtitle">Hurry up! These deals won't last forever.</p>
+        </div>
+        <div class="flash-sale__timer">
+          <span class="flash-sale__timer-label">Ends in:</span>
+          <div class="flash-sale__countdown">
+            <div class="flash-sale__time-box">{{ hours() }}<span class="flash-sale__time-label">h</span></div>
+            <span class="flash-sale__time-sep">:</span>
+            <div class="flash-sale__time-box">{{ minutes() }}<span class="flash-sale__time-label">m</span></div>
+            <span class="flash-sale__time-sep">:</span>
+            <div class="flash-sale__time-box flash-sale__time-box--accent">{{ seconds() }}<span class="flash-sale__time-label">s</span></div>
+          </div>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="prod-grid">
+          @for (i of [1,2,3,4]; track i) {
+            <app-product-card-skeleton></app-product-card-skeleton>
+          }
+        </div>
+      } @else {
+        <div class="prod-grid" appFadeIn [delay]="200">
+          @for (product of flashProducts(); track product._id) {
+            <app-product-card [product]="product"></app-product-card>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

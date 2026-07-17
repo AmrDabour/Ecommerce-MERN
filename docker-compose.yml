@@ -4,8 +4,6 @@ services:
   mongodb:
     image: mongo:7
     container_name: lure_mongodb
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
     restart: unless-stopped
@@ -17,53 +15,9 @@ services:
     networks:
       - lure_network
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: lure_backend
-    ports:
-      - "5000:5000"
-    environment:
-      - PORT=5000
-      - DATA_BASE_URL=mongodb://mongodb:27017/ecommerce
-      - SECRET=supersecretkey12345
-      - AI_API_URL=http://ai:8000
-      - FRONTEND_URL=http://localhost:9837
-    env_file:
-      - ./backend/.env
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - lure_network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: lure_frontend
-    ports:
-      - "9837:9837"
-    depends_on:
-      backend:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - lure_network
-
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: lure_rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672" 
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
@@ -76,8 +30,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: lure_redis
-    ports:
-      - "6379:6379"
     restart: unless-stopped
     networks:
       - lure_network
@@ -87,8 +39,6 @@ services:
       context: ./AI
       dockerfile: Dockerfile
     container_name: lure_ai
-    ports:
-      - "8000:8000"
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - MONGO_URI=mongodb://mongodb:27017/
@@ -133,79 +83,11 @@ services:
     networks:
       - lure_network
 
-  prometheus:
-    image: prom/prometheus:v2.48.0
-    container_name: lure_prometheus
-    restart: unless-stopped
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
-      - '--web.enable-lifecycle'
-    ports:
-      - "9090:9090"
-    networks:
-      - lure_network
-
-  grafana:
-    image: grafana/grafana:10.2.0
-    container_name: lure_grafana
-    restart: unless-stopped
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
-    depends_on:
-      - prometheus
-    networks:
-      - lure_network
-
-#   node-exporter:
-#     image: prom/node-exporter:latest
-#     container_name: lure_node-exporter
-#     restart: unless-stopped
-#     volumes:
-#       - /proc:/host/proc:ro
-#       - /sys:/host/sys:ro
-#       - /:/rootfs:ro
-#     command:
-#       - '--path.procfs=/host/proc'
-#       - '--path.rootfs=/rootfs'
-#       - '--path.sysfs=/host/sys'
-#       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-#     ports:
-#       - "9100:9100"
-#     networks:
-#       - lure_network
-
-#   cadvisor:
-#     image: gcr.io/cadvisor/cadvisor:latest
-#     container_name: lure_cadvisor
-#     restart: unless-stopped
-#     privileged: true
-#     volumes:
-#       - /:/rootfs:ro
-#       - /var/run:/var/run:ro
-#       - /sys:/sys:ro
-#       - /var/lib/docker/:/var/lib/docker:ro
-#       - /dev/disk/:/dev/disk:ro
-#     ports:
-#       - "8080:8080"
-#     networks:
-#       - lure_network
-
 volumes:
   mongodb_data:
   prometheus_data:
   grafana_data:
+
 networks:
   lure_network:
     driver: bridge

@@ -2,6 +2,7 @@ const { OrderModel } = require("../models/orderModel.js");
 const { CartModel } = require("../models/cartModel.js");
 const { ProductModel } = require("../models/productModel.js");
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const sendEmail = require("../utils/email.js");
 
 //create order from cart
 function createOrder(req, res) {
@@ -49,6 +50,21 @@ function createOrder(req, res) {
               return CartModel.findOneAndDelete({ user: req.user.id });
             })
             .then(() => {
+              // Send order confirmation email asynchronously (don't await)
+              if (req.user && req.user.email) {
+                const orderHTML = `
+                  <h2>Thank you for your order!</h2>
+                  <p>Your order (ID: ${newOrder._id}) has been received and is being processed.</p>
+                  <p><strong>Total Amount:</strong> $${newOrder.totalPrice.toFixed(2)}</p>
+                  <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
+                `;
+                sendEmail({
+                  email: req.user.email,
+                  subject: 'Luxe Store - Order Confirmation',
+                  html: orderHTML
+                }).catch(err => console.error("Error sending order email:", err));
+              }
+
               res.status(201).json({ msg: "order created successfully", data: newOrder });
             });
         });
@@ -241,7 +257,35 @@ function verifyPayment(req, res) {
           orderId,
           { isPaid: true, paidAt: Date.now() },
           { new: true }
-        ).then((order) => {
+        ).populate('user').then(async (order) => {
+          // Reward points (1 point per $1 spent)
+          if (order.user) {
+            const pointsEarned = Math.floor(order.totalPrice);
+            order.user.points += pointsEarned;
+            
+            // Update loyalty tier
+            if (order.user.points >= 5000) order.user.loyaltyTier = 'Platinum';
+            else if (order.user.points >= 2000) order.user.loyaltyTier = 'Gold';
+            else if (order.user.points >= 500) order.user.loyaltyTier = 'Silver';
+            
+            await order.user.save();
+          }
+
+          // Send payment confirmation email asynchronously
+          if (order.user && order.user.email) {
+            const orderHTML = `
+              <h2>Payment Confirmed!</h2>
+              <p>Your payment for order (ID: ${order._id}) has been successfully processed.</p>
+              <p><strong>Total Paid:</strong> $${order.totalPrice.toFixed(2)}</p>
+              <p>We will notify you once it ships!</p>
+            `;
+            sendEmail({
+              email: order.user.email,
+              subject: 'Luxe Store - Payment Confirmed',
+              html: orderHTML
+            }).catch(err => console.error("Error sending payment email:", err));
+          }
+
           res.status(200).json({ msg: "payment verified", data: order });
         });
       } else {

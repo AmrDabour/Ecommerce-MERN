@@ -38,6 +38,10 @@ const cartSchema = new mongoose.Schema(
     totalPriceAfterDiscount: {
       type: Number,
     },
+    abandonedEmailSent: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true },
 );

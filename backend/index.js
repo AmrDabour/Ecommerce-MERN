@@ -7,6 +7,9 @@ const app = express();
 const { logger } = require("./middleware/logger.js");
 const mongoose = require("mongoose");
 
+// Initialize Cron Jobs
+require('./cron/abandonedCart.js');
+
 //import all routers
 const { router: userRouter } = require("./routes/users.js");
 const { router: categoryRouter } = require("./routes/categories.js");

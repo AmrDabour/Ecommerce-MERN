@@ -105,6 +105,34 @@ export class AuthService {
       );
   }
 
+  /** Google Login: POST /users/google-login */
+  googleLogin(idToken: string): Observable<User> {
+    return this.http
+      .post<{ msg: string; token: string; user: User }>(`${this.apiUrl}/users/google-login`, { idToken })
+      .pipe(
+        switchMap((res) => {
+          const token = res.token;
+          const payload = this.decodeToken(token);
+          if (!payload?.id) {
+            return throwError(() => new Error('Invalid token payload'));
+          }
+          this._token.set(token);
+          localStorage.setItem(TOKEN_KEY, token);
+          return this.http.get<ApiResponse<User>>(`${this.apiUrl}/users/${payload.id}`);
+        }),
+        tap((res) => {
+          const user = res.data;
+          this._currentUser.set(user);
+          localStorage.setItem(USER_KEY, JSON.stringify(user));
+        }),
+        switchMap((res) => of(res.data)),
+        catchError((err) => {
+          this.clearStorage();
+          return throwError(() => err);
+        }),
+      );
+  }
+
   /** Register: POST /users/register → auto-login */
   register(data: RegisterRequest): Observable<User> {
     // Never send role from public UI

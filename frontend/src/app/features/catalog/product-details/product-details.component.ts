@@ -12,11 +12,16 @@ import { Product } from '../../../core/models/product.model';
 import { Review } from '../../../core/models/review.model';
 import { User } from '../../../core/models/user.model';
 import { RecommendationService } from '../../../core/services/recommendation.service';
+import { RecentlyViewedService } from '../../../core/services/recently-viewed';
+import { Skeleton } from '../../../shared/components/skeleton/skeleton';
+import { ProductCardSkeleton } from '../../../shared/components/product-card-skeleton/product-card-skeleton';
+import { ProductCard } from '../../../shared/components/product-card/product-card';
+import { ImageZoomDirective } from '../../../shared/directives/image-zoom';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, Skeleton, ProductCardSkeleton, ProductCard, ImageZoomDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.scss',
@@ -30,6 +35,7 @@ export class ProductDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly recService = inject(RecommendationService);
+  private readonly recentlyViewedService = inject(RecentlyViewedService);
 
   protected readonly product = signal<Product | null>(null);
   protected readonly reviews = signal<Review[]>([]);
@@ -62,6 +68,8 @@ export class ProductDetailsComponent implements OnInit {
       this.productService.getProduct(id).subscribe({
         next: (res) => {
           this.product.set(res.data);
+          this.recentlyViewedService.addProduct(res.data);
+          
           if (res.data.imageCover) {
             this.activeImage.set(res.data.imageCover);
           }

@@ -74,5 +74,12 @@
           Already have an account?
           <a routerLink="/login" class="auth-link">Sign in →</a>
         </p>
+        <div class="auth-divider">
+          <span>Or sign up with</span>
+        </div>
+        
+        <div class="google-auth-container" style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+          <asl-google-signin-button type="standard" size="large" [width]="300"></asl-google-signin-button>
+        </div>
       </div>
     </div>

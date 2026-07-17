@@ -46,6 +46,15 @@ const userSchema = new mongoose.Schema(
         ref: "products",
       },
     ],
+    points: {
+      type: Number,
+      default: 0,
+    },
+    loyaltyTier: {
+      type: String,
+      enum: ["Bronze", "Silver", "Gold", "Platinum"],
+      default: "Bronze",
+    },
   },
   { timestamps: true },
 );

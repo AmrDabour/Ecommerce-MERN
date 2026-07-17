@@ -9,24 +9,29 @@ import { AuthService } from '../../core/services/auth.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { RecommendationService } from '../../core/services/recommendation.service';
 import { Product } from '../../core/models/product.model';
+import { RecentlyViewedService } from '../../core/services/recently-viewed';
 
-import { TiltDirective } from '../../shared/directives/tilt.directive';
 import { FadeInDirective } from '../../shared/directives/fade-in.directive';
 
 import { HeroSliderComponent } from './ui/hero-slider/hero-slider.component';
 import { PromoBannersComponent } from './ui/promo-banners/promo-banners.component';
 import { TestimonialsComponent } from './ui/testimonials/testimonials.component';
+import { ProductCardSkeleton } from '../../shared/components/product-card-skeleton/product-card-skeleton';
+import { ProductCard } from '../../shared/components/product-card/product-card';
+import { FlashSaleComponent } from './ui/flash-sale/flash-sale';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     RouterLink, 
-    TiltDirective, 
     FadeInDirective,
     HeroSliderComponent,
     PromoBannersComponent,
-    TestimonialsComponent
+    TestimonialsComponent,
+    ProductCardSkeleton,
+    ProductCard,
+    FlashSaleComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
@@ -43,6 +48,7 @@ export class HomeComponent implements OnInit {
   protected readonly wishlistService = inject(WishlistService);
   private readonly toast = inject(ToastService);
   private readonly recService = inject(RecommendationService);
+  protected readonly recentlyViewedService = inject(RecentlyViewedService);
 
   protected readonly featuredProducts = signal<Product[]>([]);
   protected readonly loadingProducts = signal(true);
@@ -91,39 +97,7 @@ export class HomeComponent implements OnInit {
     return Math.round((1 - p.priceAfterDiscount / p.price) * 100);
   }
 
-  protected addToCart(product: Product): void {
-    if (this.authService.isAuthenticated()) {
-      this.addingId.set(product._id);
-      this.cartService.addToCart(product._id).subscribe({
-        next: () => {
-          this.addingId.set(null);
-          this.toast.success(`"${product.name}" added to cart!`);
-        },
-        error: () => {
-          this.addingId.set(null);
-          this.toast.error('Could not add to cart.');
-        },
-      });
-    } else {
-      this.cartService.addToGuestCart(product._id);
-      this.toast.success('Added to cart!');
-    }
-  }
+  // addToCart is now handled by ProductCard internally
 
-  protected toggleWishlist(product: Product): void {
-    if (!this.authService.isAuthenticated()) {
-      this.toast.error('Please login to add to wishlist');
-      return;
-    }
-    
-    if (this.wishlistService.isInWishlist(product._id)) {
-      this.wishlistService.removeFromWishlist(product._id).subscribe({
-        next: () => this.toast.success('Removed from wishlist')
-      });
-    } else {
-      this.wishlistService.addToWishlist(product._id).subscribe({
-        next: () => this.toast.success('Added to wishlist')
-      });
-    }
-  }
+  // toggleWishlist is now handled by ProductCard internally
 }

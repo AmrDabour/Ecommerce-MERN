@@ -1,0 +1,91 @@
+@if (product()) {
+  <div class="qv-overlay" (click)="close.emit()">
+    <div class="qv-modal" (click)="$event.stopPropagation()">
+      <button class="qv-close" (click)="close.emit()">✕</button>
+      
+      <div class="qv-layout">
+        <div class="qv-gallery" style="cursor: zoom-in; overflow: hidden;">
+          @if (activeImage()) {
+            <img [src]="activeImage()" [alt]="product()!.name" class="qv-img" appImageZoom [zoomScale]="2" />
+          } @else {
+            <div class="qv-img-placeholder">📦</div>
+          }
+          @if (product()!.priceAfterDiscount && product()!.priceAfterDiscount! < product()!.price) {
+            <span class="qv-discount">-{{ getDiscountPct() }}%</span>
+          }
+        </div>
+        
+        <div class="qv-info">
+          <h2 class="qv-title">{{ product()!.name }}</h2>
+          <div class="qv-rating">
+            <span class="qv-stars">{{ getStars(product()!.ratingsAvg) }}</span>
+            <span class="qv-rating-count">({{ product()!.ratingsCount ?? 0 }} reviews)</span>
+          </div>
+          
+          <div class="qv-pricing">
+            @if (product()!.priceAfterDiscount && product()!.priceAfterDiscount! < product()!.price) {
+              <span class="qv-price-current">${{ product()!.priceAfterDiscount!.toFixed(2) }}</span>
+              <span class="qv-price-original">${{ product()!.price.toFixed(2) }}</span>
+            } @else {
+              <span class="qv-price-current">${{ product()!.price.toFixed(2) }}</span>
+            }
+          </div>
+          
+          <p class="qv-desc">{{ product()!.description }}</p>
+          
+          <!-- Variants -->
+          @if (product()!.colors && product()!.colors!.length > 0) {
+            <div class="qv-variants">
+              <span class="qv-variants__label">Color:</span>
+              <div class="qv-variants__options">
+                @for (color of product()!.colors; track color) {
+                  <button class="qv-variants__btn" 
+                          [class.qv-variants__btn--active]="selectedColor() === color"
+                          (click)="selectedColor.set(color)">
+                    @if (color.startsWith('#')) {
+                      <span class="qv-color-circle" [style.backgroundColor]="color"></span>
+                    } @else {
+                      {{ color }}
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (product()!.sizes && product()!.sizes!.length > 0) {
+            <div class="qv-variants" style="margin-top: 1rem;">
+              <span class="qv-variants__label">Size:</span>
+              <div class="qv-variants__options">
+                @for (size of product()!.sizes; track size) {
+                  <button class="qv-variants__btn" 
+                          [class.qv-variants__btn--active]="selectedSize() === size"
+                          (click)="selectedSize.set(size)">
+                    {{ size }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="qv-actions">
+            <div class="qv-qty">
+              <button class="qv-qty__btn" (click)="decreaseQty()" [disabled]="qty() <= 1">−</button>
+              <span class="qv-qty__value">{{ qty() }}</span>
+              <button class="qv-qty__btn" (click)="increaseQty()" [disabled]="qty() >= (product()!.quantity || 1)">+</button>
+            </div>
+            <button class="qv-add-btn"
+              [disabled]="adding() || product()!.quantity === 0"
+              (click)="addToCart()">
+              {{ product()!.quantity === 0 ? 'Out of stock' : adding() ? 'Adding…' : 'Add to cart' }}
+            </button>
+          </div>
+          
+          <a [routerLink]="['/products', product()!._id]" class="qv-view-full" (click)="close.emit()">
+            View full details →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+}

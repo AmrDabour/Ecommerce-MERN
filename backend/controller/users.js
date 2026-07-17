@@ -2,6 +2,8 @@ const { UserModel } = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const { OAuth2Client } = require("google-auth-library");
+const crypto = require("crypto");
 
 //get all users
 function getUsers(req, res) {
@@ -185,4 +187,45 @@ async function resetPassword(req, res) {
   }
 }
 
-module.exports = { getUsers, getUserById, addUser, login, updateUser, deleteUser, forgotPassword, resetPassword };
+//google login
+async function googleLogin(req, res) {
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).json({ msg: "idToken is required" });
+
+  try {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name;
+
+    // Check if user exists
+    let userInDB = await UserModel.findOne({ email: email });
+
+    if (!userInDB) {
+      // Create new user with random password
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      userInDB = await UserModel.create({
+        name: name,
+        email: email,
+        password: randomPassword
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: userInDB._id, email: userInDB.email, role: userInDB.role },
+      process.env.SECRET,
+    );
+    
+    res.status(200).json({ msg: "Google login successful", token: token, user: userInDB });
+  } catch (error) {
+    console.error("Google Auth Error:", error);
+    res.status(401).json({ msg: "Invalid Google Token", error: error.message });
+  }
+}
+
+module.exports = { getUsers, getUserById, addUser, login, updateUser, deleteUser, forgotPassword, resetPassword, googleLogin };

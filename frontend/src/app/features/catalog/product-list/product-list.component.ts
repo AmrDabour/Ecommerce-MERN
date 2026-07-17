@@ -1,7 +1,7 @@
 import {
   Component, ChangeDetectionStrategy, inject, signal, OnInit
 } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
@@ -11,11 +11,13 @@ import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
 import { Product } from '../../../core/models/product.model';
 import { Category } from '../../../core/models/category.model';
+import { ProductCardSkeleton } from '../../../shared/components/product-card-skeleton/product-card-skeleton';
+import { ProductCard } from '../../../shared/components/product-card/product-card';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [FormsModule, ProductCardSkeleton, ProductCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss',
@@ -127,33 +129,7 @@ export class ProductListComponent implements OnInit {
     return Math.round((1 - p.priceAfterDiscount / p.price) * 100);
   }
 
-  protected addToCart(product: Product): void {
-    if (this.authService.isAuthenticated()) {
-      this.addingId.set(product._id);
-      this.cartService.addToCart(product._id).subscribe({
-        next: () => { this.addingId.set(null); this.toast.success('Added to cart!'); },
-        error: () => { this.addingId.set(null); this.toast.error('Could not add to cart.'); },
-      });
-    } else {
-      this.cartService.addToGuestCart(product._id);
-      this.toast.success('Added to cart!');
-    }
-  }
+  // addToCart is now handled internally by ProductCard
 
-  protected toggleWishlist(product: Product): void {
-    if (!this.authService.isAuthenticated()) {
-      this.toast.error('Please login to add to wishlist');
-      return;
-    }
-    
-    if (this.wishlistService.isInWishlist(product._id)) {
-      this.wishlistService.removeFromWishlist(product._id).subscribe({
-        next: () => this.toast.success('Removed from wishlist')
-      });
-    } else {
-      this.wishlistService.addToWishlist(product._id).subscribe({
-        next: () => this.toast.success('Added to wishlist')
-      });
-    }
-  }
+  // toggleWishlist is now handled internally by ProductCard
 }

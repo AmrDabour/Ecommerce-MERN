@@ -11,7 +11,14 @@ export interface User {
   password?: string;
   phone?: string;
   role: 'user' | 'admin';
-  address?: Address;
+  address?: {
+    street?: string;
+    city?: string;
+    zip?: string;
+  };
+  wishlist?: string[];
+  points?: number;
+  loyaltyTier?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
   createdAt?: string;
   updatedAt?: string;
 }
