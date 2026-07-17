@@ -43,6 +43,8 @@ export class AdminProductsComponent implements OnInit {
     quantity: [0, [Validators.required, Validators.min(0)]],
     category: ['', Validators.required],
     imageCover: [''],
+    colors: [''],
+    sizes: [''],
   });
 
   ngOnInit(): void {
@@ -60,7 +62,7 @@ export class AdminProductsComponent implements OnInit {
 
   protected openCreate(): void {
     this.editingId.set(null);
-    this.productForm.reset({ price: 0, quantity: 0 });
+    this.productForm.reset({ price: 0, quantity: 0, colors: '', sizes: '' });
     this.modalOpen.set(true);
   }
 
@@ -71,6 +73,8 @@ export class AdminProductsComponent implements OnInit {
       priceAfterDiscount: p.priceAfterDiscount ?? null, quantity: p.quantity,
       category: typeof p.category === 'string' ? p.category : (p.category as any)._id,
       imageCover: p.imageCover ?? '',
+      colors: p.colors?.join(', ') ?? '',
+      sizes: p.sizes?.join(', ') ?? '',
     });
     this.modalOpen.set(true);
   }
@@ -80,8 +84,24 @@ export class AdminProductsComponent implements OnInit {
   protected saveProduct(): void {
     if (this.productForm.invalid) return;
     this.saving.set(true);
-    const data: any = this.productForm.value;
+    const formValue = this.productForm.value;
+    const data: any = { ...formValue };
+    
     if (!data.priceAfterDiscount) delete data.priceAfterDiscount;
+    
+    // Process colors and sizes (convert comma separated strings to arrays)
+    if (data.colors) {
+      data.colors = data.colors.split(',').map((c: string) => c.trim()).filter(Boolean);
+    } else {
+      data.colors = [];
+    }
+    
+    if (data.sizes) {
+      data.sizes = data.sizes.split(',').map((s: string) => s.trim()).filter(Boolean);
+    } else {
+      data.sizes = [];
+    }
+
     const obs = this.editingId()
       ? this.productService.updateProduct(this.editingId()!, data)
       : this.productService.createProduct(data);

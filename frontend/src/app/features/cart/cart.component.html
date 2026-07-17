@@ -39,6 +39,10 @@
                   <a [routerLink]="['/products', getProductId(item)]" class="cart-item__name">
                     {{ getProduct(item)?.name ?? 'Product' }}
                   </a>
+                  <div class="cart-item__variants" style="font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.25rem;">
+                    @if (item.color) { <span style="margin-right: 0.5rem;">Color: {{ item.color }}</span> }
+                    @if (item.size) { <span>Size: {{ item.size }}</span> }
+                  </div>
                   <div class="cart-item__unit-price">${{ item.price.toFixed(2) }} each</div>
                 </div>
                 <div class="cart-item__qty">

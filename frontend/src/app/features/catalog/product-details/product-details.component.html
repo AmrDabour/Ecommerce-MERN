@@ -86,6 +86,42 @@
 
             <p class="pd-info__desc">{{ product()!.description }}</p>
 
+            <!-- Variants Selection -->
+            @if (product()!.colors && product()!.colors!.length > 0) {
+              <div class="pd-variants">
+                <span class="pd-variants__label">Color:</span>
+                <div class="pd-variants__options">
+                  @for (color of product()!.colors; track color) {
+                    <button class="pd-variants__btn" 
+                            [class.pd-variants__btn--active]="selectedColor() === color"
+                            (click)="selectedColor.set(color)">
+                      <!-- Try to display as color circle if it's a hex code or color name, otherwise text -->
+                      @if (color.startsWith('#')) {
+                        <span class="pd-color-circle" [style.backgroundColor]="color"></span>
+                      } @else {
+                        {{ color }}
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (product()!.sizes && product()!.sizes!.length > 0) {
+              <div class="pd-variants" style="margin-top: 1rem;">
+                <span class="pd-variants__label">Size:</span>
+                <div class="pd-variants__options">
+                  @for (size of product()!.sizes; track size) {
+                    <button class="pd-variants__btn" 
+                            [class.pd-variants__btn--active]="selectedSize() === size"
+                            (click)="selectedSize.set(size)">
+                      {{ size }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
             <!-- Quantity + Add to cart -->
             <div class="pd-actions">
               <div class="pd-qty">

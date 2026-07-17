@@ -24,7 +24,7 @@ export class OrderDetailsComponent implements OnInit {
 
   protected readonly order = signal<Order | null>(null);
   protected readonly loading = signal(true);
-  protected readonly acting = signal<'paid' | 'delivered' | null>(null);
+  protected readonly acting = signal<'paid' | null>(null);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -48,14 +48,6 @@ export class OrderDetailsComponent implements OnInit {
     this.acting.set('paid');
     this.orderService.markAsPaid(this.order()!._id).subscribe({
       next: (r) => { this.order.set(r.data); this.acting.set(null); this.toast.success('Order marked as paid.'); },
-      error: () => this.acting.set(null),
-    });
-  }
-
-  protected markDelivered(): void {
-    this.acting.set('delivered');
-    this.orderService.markAsDelivered(this.order()!._id).subscribe({
-      next: (r) => { this.order.set(r.data); this.acting.set(null); this.toast.success('Order marked as delivered.'); },
       error: () => this.acting.set(null),
     });
   }

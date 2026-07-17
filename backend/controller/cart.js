@@ -28,6 +28,8 @@ function getCart(req, res) {
 //add product to cart
 function addToCart(req, res) {
   let productId = req.body.product;
+  let color = req.body.color;
+  let size = req.body.size;
 
   ProductModel.findById(productId)
     .then((product) => {
@@ -43,14 +45,14 @@ function addToCart(req, res) {
             //create new cart
             return CartModel.create({
               user: req.user.id,
-              cartItems: [{ product: productId, quantity: 1, price: price }],
+              cartItems: [{ product: productId, quantity: 1, price: price, color: color, size: size }],
               totalPrice: price,
             });
           }
 
-          //check if product already in cart
+          //check if product already in cart with same color and size
           let itemIndex = cart.cartItems.findIndex(
-            (item) => item.product.toString() === productId,
+            (item) => item.product.toString() === productId && item.color === color && item.size === size,
           );
 
           if (itemIndex > -1) {
@@ -58,7 +60,7 @@ function addToCart(req, res) {
             cart.cartItems[itemIndex].quantity += 1;
           } else {
             //add new item
-            cart.cartItems.push({ product: productId, quantity: 1, price: price });
+            cart.cartItems.push({ product: productId, quantity: 1, price: price, color: color, size: size });
           }
 
           cart.totalPrice = calcTotalPrice(cart.cartItems);

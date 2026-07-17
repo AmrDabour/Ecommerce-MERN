@@ -39,6 +39,8 @@ export class ProductDetailsComponent implements OnInit {
   protected readonly submittingReview = signal(false);
   protected readonly activeImage = signal<string>('');
   protected readonly qty = signal(1);
+  protected readonly selectedColor = signal<string | null>(null);
+  protected readonly selectedSize = signal<string | null>(null);
 
   protected readonly reviewForm = this.fb.group({
     rating: [0, [Validators.required, Validators.min(1)]],
@@ -140,16 +142,29 @@ export class ProductDetailsComponent implements OnInit {
   protected addToCart(): void {
     const p = this.product();
     if (!p) return;
+
+    if (p.colors?.length && !this.selectedColor()) {
+      this.toast.error('Please select a color first.');
+      return;
+    }
+    if (p.sizes?.length && !this.selectedSize()) {
+      this.toast.error('Please select a size first.');
+      return;
+    }
+
     this.adding.set(true);
 
+    const c = this.selectedColor() ?? undefined;
+    const s = this.selectedSize() ?? undefined;
+
     if (this.auth.isAuthenticated()) {
-      this.cartService.addToCart(p._id).subscribe({
+      this.cartService.addToCart(p._id, c, s).subscribe({
         next: () => { this.adding.set(false); this.toast.success('Added to cart!'); },
         error: () => { this.adding.set(false); this.toast.error('Could not add to cart.'); },
       });
     } else {
       for (let i = 0; i < this.qty(); i++) {
-        this.cartService.addToGuestCart(p._id);
+        this.cartService.addToGuestCart(p._id, c, s);
       }
       this.adding.set(false);
       this.toast.success('Added to cart!');

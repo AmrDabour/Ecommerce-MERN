@@ -18,6 +18,8 @@ function createOrder(req, res) {
           product: item.product,
           quantity: item.quantity,
           price: item.price,
+          color: item.color,
+          size: item.size,
         })),
         totalPrice: cart.totalPriceAfterDiscount || cart.totalPrice,
         shippingAddress: req.body.shippingAddress || {},
@@ -28,8 +30,16 @@ function createOrder(req, res) {
         .then((newOrder) => {
           //update product sold count and reduce quantity
           let updates = cart.cartItems.map((item) => {
-            return ProductModel.findByIdAndUpdate(item.product, {
-              $inc: { sold: item.quantity, quantity: -item.quantity },
+            return ProductModel.findByIdAndUpdate(
+              item.product, 
+              { $inc: { sold: item.quantity, quantity: -item.quantity } },
+              { new: true }
+            ).then(updatedProduct => {
+              if (updatedProduct && updatedProduct.quantity < 5) {
+                console.warn(`[STOCK ALERT] Product ${updatedProduct.name} (ID: ${updatedProduct._id}) is low on stock! Remaining: ${updatedProduct.quantity}`);
+                // TODO: Send email to admin about low stock
+              }
+              return updatedProduct;
             });
           });
 
@@ -109,7 +119,7 @@ function markAsPaid(req, res) {
 function markAsDelivered(req, res) {
   OrderModel.findByIdAndUpdate(
     req.params.id,
-    { isDelivered: true, deliveredAt: Date.now() },
+    { isDelivered: true, deliveredAt: Date.now(), status: "Delivered" },
     { new: true },
   )
     .then((data) => {
@@ -123,46 +133,97 @@ function markAsDelivered(req, res) {
     });
 }
 
-//create checkout session
-function createCheckoutSession(req, res) {
-  OrderModel.findById(req.params.id)
-    .populate("orderItems.product", "name imageCover price")
-    .then((order) => {
-      if (!order) {
+//update order status (admin)
+function updateOrderStatus(req, res) {
+  const newStatus = req.body.status;
+  const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+  
+  if (!validStatuses.includes(newStatus)) {
+    return res.status(400).json({ msg: "Invalid status value" });
+  }
+
+  let updateData = { status: newStatus };
+  if (newStatus === "Delivered") {
+    updateData.isDelivered = true;
+    updateData.deliveredAt = Date.now();
+  }
+
+  OrderModel.findByIdAndUpdate(
+    req.params.id,
+    updateData,
+    { new: true },
+  )
+    .then((data) => {
+      if (!data) {
         return res.status(404).json({ msg: "order not found" });
       }
-      
-      const lineItems = order.orderItems.map((item) => {
-        return {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: item.product.name,
-              images: item.product.imageCover ? [item.product.imageCover] : [],
-            },
-            unit_amount: Math.round(item.price * 100),
-          },
-          quantity: item.quantity,
-        };
-      });
-
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
-      
-      return stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: lineItems,
-        mode: 'payment',
-        success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
-        cancel_url: `${frontendUrl}/checkout`,
-        client_reference_id: order._id.toString(),
-      }).then((session) => {
-        res.status(200).json({ msg: "session created", sessionUrl: session.url });
-      });
+      res.status(200).json({ msg: `order status updated to ${newStatus}`, data: data });
     })
     .catch((err) => {
-      console.error(err);
-      res.status(500).json({ msg: "Error creating checkout session", error: err.message });
+      res.status(500).json({ msg: "Error updating order status", error: err });
     });
+}
+
+//create checkout session
+async function createCheckoutSession(req, res) {
+  try {
+    const order = await OrderModel.findById(req.params.id)
+      .populate("orderItems.product", "name imageCover price");
+
+    if (!order) {
+      return res.status(404).json({ msg: "order not found" });
+    }
+    
+    const lineItems = order.orderItems.map((item) => {
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.product.name,
+            images: item.product.imageCover ? [item.product.imageCover] : [],
+          },
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
+    
+    const sessionConfig = {
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+      cancel_url: `${frontendUrl}/checkout`,
+      client_reference_id: order._id.toString(),
+    };
+
+    const subtotal = order.orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    console.log(`[Stripe Checkout] orderId: ${order._id}, subtotal: ${subtotal}, order.totalPrice: ${order.totalPrice}`);
+    // If there is a discount applied to the total price
+    if (order.totalPrice < subtotal) {
+      const discountAmount = Math.round((subtotal - order.totalPrice) * 100);
+      console.log(`[Stripe Checkout] Creating coupon for discountAmount: ${discountAmount} cents`);
+      const stripeCoupon = await stripe.coupons.create({
+        amount_off: discountAmount,
+        currency: 'usd',
+        duration: 'once',
+        name: 'Order Discount'
+      });
+      console.log(`[Stripe Checkout] Coupon created: ${stripeCoupon.id}`);
+      sessionConfig.discounts = [{ coupon: stripeCoupon.id }];
+    } else {
+      console.log(`[Stripe Checkout] No discount applied. totalPrice (${order.totalPrice}) >= subtotal (${subtotal})`);
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+    res.status(200).json({ msg: "session created", sessionUrl: session.url });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Error creating checkout session", error: err.message });
+  }
 }
 
 //verify payment
@@ -193,4 +254,4 @@ function verifyPayment(req, res) {
     });
 }
 
-module.exports = { createOrder, getUserOrders, getOrderById, markAsPaid, markAsDelivered, createCheckoutSession, verifyPayment };
+module.exports = { createOrder, getUserOrders, getOrderById, markAsPaid, markAsDelivered, updateOrderStatus, createCheckoutSession, verifyPayment };

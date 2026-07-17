@@ -42,22 +42,22 @@ export class CartService {
     );
   }
 
-  addToCart(productId: string): Observable<ApiResponse<Cart>> {
+  addToCart(productId: string, color?: string, size?: string): Observable<ApiResponse<Cart>> {
     return this.http
-      .post<ApiResponse<Cart>>(`${this.apiUrl}/cart`, { product: productId })
+      .post<ApiResponse<Cart>>(`${this.apiUrl}/cart`, { product: productId, color, size })
       .pipe(tap((res) => this._cart.set(res.data)));
   }
 
-  addToGuestCart(productId: string): void {
+  addToGuestCart(productId: string, color?: string, size?: string): void {
     const current = this._guestCart();
-    const idx = current.findIndex((i) => i.productId === productId);
+    const idx = current.findIndex((i) => i.productId === productId && i.color === color && i.size === size);
     let updated: GuestCartItem[];
     if (idx > -1) {
       updated = current.map((item, i) =>
         i === idx ? { ...item, quantity: item.quantity + 1 } : item,
       );
     } else {
-      updated = [...current, { productId, quantity: 1 }];
+      updated = [...current, { productId, quantity: 1, color, size }];
     }
     this.saveGuestCart(updated);
   }

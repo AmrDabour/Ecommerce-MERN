@@ -15,6 +15,12 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  color: {
+    type: String,
+  },
+  size: {
+    type: String,
+  },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -43,6 +49,11 @@ const orderSchema = new mongoose.Schema(
     },
     paidAt: {
       type: Date,
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
     },
     isDelivered: {
       type: Boolean,

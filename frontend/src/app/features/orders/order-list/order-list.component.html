@@ -35,10 +35,13 @@
                     } @else {
                       <app-badge variant="warning" pill>Unpaid</app-badge>
                     }
-                    @if (order.isDelivered) {
-                      <app-badge variant="success" pill>✓ Delivered</app-badge>
-                    } @else {
-                      <app-badge variant="info" pill>In Transit</app-badge>
+                    @switch (order.status) {
+                      @case ('Pending') { <app-badge variant="warning" pill>Pending</app-badge> }
+                      @case ('Processing') { <app-badge variant="info" pill>Processing</app-badge> }
+                      @case ('Shipped') { <app-badge variant="accent" pill>Shipped</app-badge> }
+                      @case ('Delivered') { <app-badge variant="success" pill>Delivered</app-badge> }
+                      @case ('Cancelled') { <app-badge variant="danger" pill>Cancelled</app-badge> }
+                      @default { <app-badge variant="neutral" pill>{{ order.status }}</app-badge> }
                     }
                   </div>
                 </div>

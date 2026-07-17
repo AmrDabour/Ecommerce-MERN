@@ -9,6 +9,8 @@ export interface Product {
   quantity: number;
   imageCover?: string;
   images?: string[];
+  colors?: string[];
+  sizes?: string[];
   category: string | Category;
   ratingsAvg?: number;
   ratingsCount?: number;
@@ -35,5 +37,7 @@ export interface CreateProductRequest {
   quantity: number;
   imageCover?: string;
   images?: string[];
+  colors?: string[];
+  sizes?: string[];
   category: string;
 }

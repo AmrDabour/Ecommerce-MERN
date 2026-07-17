@@ -6,6 +6,8 @@ export interface OrderItem {
   product: Product | string;
   quantity: number;
   price: number;
+  color?: string;
+  size?: string;
 }
 
 /** Backend uses 'orderItems' not 'items' */
@@ -17,6 +19,7 @@ export interface Order {
   paymentMethod: 'cash' | 'card';
   isPaid: boolean;
   paidAt?: string;
+  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   isDelivered: boolean;
   deliveredAt?: string;
   shippingAddress: Address;

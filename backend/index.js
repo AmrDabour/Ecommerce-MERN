@@ -30,6 +30,21 @@ app.use(
 app.use(express.json());
 app.use(logger);
 
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+
+// Set security HTTP headers
+app.use(helmet());
+
+// Limit requests from same API
+const limiter = rateLimit({
+  max: 200, // Limit each IP to 200 requests per windowMs
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  message: "Too many requests from this IP, please try again in 15 minutes",
+});
+app.use("/api", limiter); // Apply generally (if API had /api prefix)
+app.use(limiter); // Apply to all routes for now
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "UP" });

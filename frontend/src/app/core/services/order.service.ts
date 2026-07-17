@@ -30,6 +30,10 @@ export class OrderService {
     return this.http.patch<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/deliver`, {});
   }
 
+  updateOrderStatus(id: string, status: string): Observable<ApiResponse<Order>> {
+    return this.http.patch<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/status`, { status });
+  }
+
   createCheckoutSession(id: string): Observable<{ msg: string, sessionUrl: string }> {
     return this.http.post<{ msg: string, sessionUrl: string }>(`${this.apiUrl}/orders/${id}/checkout-session`, {});
   }

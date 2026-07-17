@@ -5,6 +5,8 @@ export interface CartItem {
   product: Product | string;
   quantity: number;
   price: number;
+  color?: string;
+  size?: string;
 }
 
 /** Backend uses 'cartItems' not 'items' */
@@ -18,8 +20,9 @@ export interface Cart {
   updatedAt?: string;
 }
 
-/** For guest cart stored in localStorage */
 export interface GuestCartItem {
   productId: string;
   quantity: number;
+  color?: string;
+  size?: string;
 }

@@ -19,10 +19,13 @@
               } @else {
                 <app-badge variant="warning" pill>Awaiting Payment</app-badge>
               }
-              @if (order()!.isDelivered) {
-                <app-badge variant="success" pill>✓ Delivered</app-badge>
-              } @else {
-                <app-badge variant="info" pill>In Transit</app-badge>
+              @switch (order()!.status) {
+                @case ('Pending') { <app-badge variant="warning" pill>Pending</app-badge> }
+                @case ('Processing') { <app-badge variant="info" pill>Processing</app-badge> }
+                @case ('Shipped') { <app-badge variant="accent" pill>Shipped</app-badge> }
+                @case ('Delivered') { <app-badge variant="success" pill>Delivered</app-badge> }
+                @case ('Cancelled') { <app-badge variant="danger" pill>Cancelled</app-badge> }
+                @default { <app-badge variant="neutral" pill>{{ order()!.status }}</app-badge> }
               }
             </div>
           </div>
@@ -36,6 +39,10 @@
                   <div class="order-item-row">
                     <div class="order-item-row__info">
                       <span class="order-item-row__name">{{ getItemName(item) }}</span>
+                      <div style="font-size: var(--text-xs); color: var(--text-muted);">
+                        @if (item.color) { <span style="margin-right: 0.5rem;">Color: {{ item.color }}</span> }
+                        @if (item.size) { <span>Size: {{ item.size }}</span> }
+                      </div>
                       <span class="order-item-row__qty">Qty: {{ item.quantity }}</span>
                     </div>
                     <span class="order-item-row__price">{{ (item.price * item.quantity) | currencyFormat }}</span>
@@ -73,11 +80,6 @@
                   @if (!order()!.isPaid) {
                     <button class="admin-action-btn" [disabled]="acting()" (click)="markPaid()">
                       @if (acting() === 'paid') { … } @else { Mark as Paid }
-                    </button>
-                  }
-                  @if (!order()!.isDelivered) {
-                    <button class="admin-action-btn admin-action-btn--secondary" [disabled]="acting()" (click)="markDelivered()">
-                      @if (acting() === 'delivered') { … } @else { Mark as Delivered }
                     </button>
                   }
                 </div>

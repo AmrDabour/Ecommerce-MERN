@@ -66,17 +66,21 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
-  protected markDelivered(id: string): void {
+  protected updateStatus(id: string, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const newStatus = select.value;
+    
     this.actingId.set(id);
-    this.orderService.markAsDelivered(id).subscribe({
+    this.orderService.updateOrderStatus(id, newStatus).subscribe({
       next: () => {
-        this.toast.success('Order marked as delivered.');
+        this.toast.success('Order status updated.');
         this.actingId.set(null);
         this.loadOrders();
       },
       error: () => {
-        this.toast.error('Failed to update order.');
+        this.toast.error('Failed to update status.');
         this.actingId.set(null);
+        this.loadOrders(); // Reset select value to original status
       }
     });
   }
