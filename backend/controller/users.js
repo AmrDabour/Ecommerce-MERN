@@ -2,7 +2,7 @@ const { UserModel } = require("../models/userModel.js");
 const { CouponModel } = require("../models/couponModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const sendEmail = require("../utils/email.js");
 const { OAuth2Client } = require("google-auth-library");
 const crypto = require("crypto");
 
@@ -165,23 +165,12 @@ async function forgotPassword(req, res) {
       { expiresIn: '15m' }
     );
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-      }
-    });
-
     // Determine the frontend URL based on environment or fallback
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
     
-    const mailOptions = {
-      from: process.env.GMAIL_USER,
-      to: user.email,
+    await sendEmail({
+      email: user.email,
       subject: 'Luxe Store - Password Reset',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
@@ -193,9 +182,7 @@ async function forgotPassword(req, res) {
           <p style="color: #777; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
         </div>
       `
-    };
-
-    await transporter.sendMail(mailOptions);
+    });
     res.status(200).json({ msg: "Password reset link sent to your email" });
   } catch (err) {
     console.error("Error in forgotPassword:", err);

@@ -3,7 +3,8 @@ const { CartModel } = require('../models/cartModel');
 const sendEmail = require('../utils/email');
 
 // Run every hour to check for abandoned carts
-cron.schedule('0 * * * *', async () => {
+function startAbandonedCartJob() {
+  cron.schedule('0 * * * *', async () => {
   console.log('[CRON] Running abandoned cart check...');
   try {
     // 24 hours ago
@@ -53,6 +54,9 @@ cron.schedule('0 * * * *', async () => {
   } catch (err) {
     console.error('[CRON] Error checking abandoned carts:', err);
   }
-});
+  });
 
-console.log('[CRON] Abandoned cart job initialized.');
+  console.log('[CRON] Abandoned cart job initialized.');
+}
+
+module.exports = { startAbandonedCartJob };

@@ -74,7 +74,7 @@
     border-radius: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(var(--primary-color-rgb), 0.5);
+    background: rgba(var(--color-accent-rgb), 0.5);
     border-radius: 4px;
   }
 }
@@ -167,7 +167,7 @@
       transition: color 0.2s;
 
       &:hover {
-        color: var(--primary-color);
+        color: var(--color-accent);
       }
     }
   }
@@ -180,7 +180,7 @@
     .price {
       font-size: 1.25rem;
       font-weight: 700;
-      color: var(--primary-color);
+      color: var(--color-accent);
 
       &.discounted {
         color: #ef4444;
@@ -239,7 +239,22 @@
     }
   }
 
-  .btn-block {
+  .btn-add-cart {
     width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--color-accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+    }
   }
 }

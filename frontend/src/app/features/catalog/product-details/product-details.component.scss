@@ -172,14 +172,16 @@
     .pd-qty {
       display: flex;
       align-items: center;
+      height: 52px;
       border: 1.5px solid var(--color-border);
       border-radius: var(--radius-md);
       overflow: hidden;
+      background: var(--color-surface);
     }
 
     .pd-qty__btn {
       width: 44px;
-      height: 44px;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -202,8 +204,9 @@
 
     .pd-add-btn {
       flex: 1;
+      height: 52px;
       padding: 0 1.5rem;
-      background: var(--color-primary);
+      background: var(--color-accent);
       color: white;
       border: none;
       border-radius: var(--radius-sm);
@@ -217,7 +220,7 @@
       gap: var(--space-2);
 
       &:hover:not(:disabled) {
-        background: var(--color-primary-dark, #0f172a);
+        background: var(--color-accent-hover);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
       }
@@ -232,8 +235,8 @@
       width: 52px;
       height: 52px;
       border-radius: var(--radius-sm);
-      background: var(--color-surface-elevated);
-      color: var(--color-text-secondary);
+      background: var(--color-surface-alt);
+      color: var(--color-text);
       border: 1px solid var(--color-border);
       display: flex;
       align-items: center;
@@ -242,9 +245,9 @@
       transition: all var(--transition-fast);
 
       &:hover {
-        color: var(--color-primary);
-        border-color: var(--color-primary);
-        background: rgba(15, 23, 42, 0.05);
+        color: white;
+        border-color: var(--color-accent);
+        background: var(--color-accent);
       }
     }
 

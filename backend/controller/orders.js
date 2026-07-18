@@ -1,11 +1,12 @@
 const { OrderModel } = require("../models/orderModel.js");
 const { CartModel } = require("../models/cartModel.js");
 const { ProductModel } = require("../models/productModel.js");
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripeClient = require('../clients/stripe.client.js');
 const sendEmail = require("../utils/email.js");
 const emailTemplates = require("../utils/email-templates.js");
 const { PushSubscriptionModel } = require("../models/pushSubscriptionModel.js");
 const { sendPushNotification } = require("../utils/push.js");
+const loyaltyService = require("../services/loyalty.service.js");
 
 //create order from cart
 function createOrder(req, res) {
@@ -278,34 +279,22 @@ async function createCheckoutSession(req, res) {
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
     
-    const sessionConfig = {
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
-      cancel_url: `${frontendUrl}/checkout`,
-      client_reference_id: order._id.toString(),
-    };
-
     const subtotal = order.orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    console.log(`[Stripe Checkout] orderId: ${order._id}, subtotal: ${subtotal}, order.totalPrice: ${order.totalPrice}`);
+    let discountAmount = 0;
+    
     // If there is a discount applied to the total price
     if (order.totalPrice < subtotal) {
-      const discountAmount = Math.round((subtotal - order.totalPrice) * 100);
-      console.log(`[Stripe Checkout] Creating coupon for discountAmount: ${discountAmount} cents`);
-      const stripeCoupon = await stripe.coupons.create({
-        amount_off: discountAmount,
-        currency: 'usd',
-        duration: 'once',
-        name: 'Order Discount'
-      });
-      console.log(`[Stripe Checkout] Coupon created: ${stripeCoupon.id}`);
-      sessionConfig.discounts = [{ coupon: stripeCoupon.id }];
-    } else {
-      console.log(`[Stripe Checkout] No discount applied. totalPrice (${order.totalPrice}) >= subtotal (${subtotal})`);
+      discountAmount = Math.round((subtotal - order.totalPrice) * 100);
     }
 
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+    const session = await stripeClient.createSession({
+      lineItems,
+      successUrl: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+      cancelUrl: `${frontendUrl}/checkout`,
+      clientReferenceId: order._id.toString(),
+      discountAmount
+    });
+    
     res.status(200).json({ msg: "session created", sessionUrl: session.url });
 
   } catch (err) {
@@ -321,7 +310,7 @@ function verifyPayment(req, res) {
     return res.status(400).json({ msg: "session_id is required" });
   }
 
-  stripe.checkout.sessions.retrieve(sessionId)
+  stripeClient.getSession(sessionId)
     .then((session) => {
       if (session.payment_status === 'paid') {
         const orderId = session.client_reference_id;
@@ -331,16 +320,8 @@ function verifyPayment(req, res) {
           { new: true }
         ).populate('user').then(async (order) => {
           let pointsEarned = 0;
-          // Reward points (1 point per $1 spent)
           if (order.user) {
-            pointsEarned = Math.floor(order.totalPrice);
-            order.user.points += pointsEarned;
-            
-            // Update loyalty tier
-            if (order.user.points >= 5000) order.user.loyaltyTier = 'Platinum';
-            else if (order.user.points >= 2000) order.user.loyaltyTier = 'Gold';
-            else if (order.user.points >= 500) order.user.loyaltyTier = 'Silver';
-            
+            pointsEarned = loyaltyService.processPurchaseReward(order.user, order.totalPrice);
             await order.user.save();
           }
 

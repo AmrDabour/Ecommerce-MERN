@@ -34,10 +34,10 @@
           <td *ngFor="let product of compareItems">
             <div class="price-container">
               <span class="price" [class.discounted]="product.priceAfterDiscount">
-                ${{ product.priceAfterDiscount || product.price }}
+                ${{ (product.priceAfterDiscount || product.price) | number:'1.2-2' }}
               </span>
               <span class="old-price" *ngIf="product.priceAfterDiscount">
-                ${{ product.price }}
+                ${{ product.price | number:'1.2-2' }}
               </span>
             </div>
           </td>
@@ -87,7 +87,7 @@
         <tr>
           <th></th>
           <td *ngFor="let product of compareItems">
-            <button class="btn btn-primary btn-block" (click)="addToCart(product)">
+            <button class="btn-add-cart" (click)="addToCart(product)">
               Add to Cart
             </button>
           </td>

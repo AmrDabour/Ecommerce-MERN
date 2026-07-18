@@ -10,7 +10,8 @@ const { logger } = require("./middleware/logger.js");
 const mongoose = require("mongoose");
 
 // Initialize Cron Jobs
-require('./cron/abandonedCart.js');
+const { startAbandonedCartJob } = require('./cron/abandonedCart.js');
+startAbandonedCartJob();
 
 const { router: userRouter } = require("./routes/users.js");
 const { router: categoryRouter } = require("./routes/categories.js");
@@ -28,7 +29,7 @@ const giftCardRoute = require("./routes/giftCards");
 const { webhookCheckout } = require("./controller/orders");
 const { router: notificationsRouter } = require("./routes/notifications.js");
 const liveChatRouter = require("./routes/liveChat.js");
-const socketHandler = require("./utils/socketHandler.js");
+const socketHandler = require("./transport/socketHandler.js");
 
 //cors>>cross origin
 app.use(
