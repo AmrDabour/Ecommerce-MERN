@@ -19,6 +19,7 @@ export interface User {
   wishlist?: string[];
   points?: number;
   loyaltyTier?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
+  walletBalance?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -43,6 +44,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   phone?: string;
+  referralCode?: string;
   // Never send 'role' from the public UI
 }
 

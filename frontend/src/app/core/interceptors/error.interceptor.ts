@@ -27,7 +27,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           toast.error('Access denied. You do not have permission.');
           break;
         case 404:
-          toast.error('Resource not found.');
+          toast.error(message || 'Resource not found.');
           break;
         case 500:
         default:

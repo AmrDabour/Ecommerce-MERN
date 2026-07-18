@@ -7,11 +7,12 @@ import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/ui/toast/toast.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
@@ -19,7 +20,7 @@ import { ToastService } from '../../shared/ui/toast/toast.service';
 export class CheckoutComponent implements OnInit {
   protected readonly cartService = inject(CartService);
   private readonly orderService = inject(OrderService);
-  private readonly auth = inject(AuthService);
+  protected readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -31,6 +32,7 @@ export class CheckoutComponent implements OnInit {
     city: ['', Validators.required],
     zip: [''],
     paymentMethod: ['cash' as 'cash' | 'card', Validators.required],
+    useWallet: [false]
   });
 
   protected readonly couponForm = this.fb.group({
@@ -61,6 +63,18 @@ export class CheckoutComponent implements OnInit {
     return this.cartService.cart()?.cartItems.reduce((s, i) => s + i.price * i.quantity, 0) ?? 0;
   }
 
+  protected getTotal(): number {
+    let total = this.cartService.cart()?.totalPrice ?? this.getSubtotal();
+    
+    // Deduct wallet balance if toggle is on
+    if (this.form.value.useWallet) {
+      const balance = this.auth.currentUser()?.walletBalance || 0;
+      total = Math.max(0, total - balance);
+    }
+    
+    return total;
+  }
+
   protected getItemName(item: { product: unknown }): string {
     if (!item.product) return 'Product';
     if (typeof item.product === 'object' && item.product !== null) {
@@ -89,10 +103,11 @@ export class CheckoutComponent implements OnInit {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading.set(true);
 
-    const { street, city, zip, paymentMethod } = this.form.value;
+    const { street, city, zip, paymentMethod, useWallet } = this.form.value;
     this.orderService.createOrder({
       paymentMethod: paymentMethod as 'cash' | 'card',
       shippingAddress: { street: street!, city: city!, zip: zip ?? '' },
+      useWallet: useWallet || false
     }).subscribe({
       next: (res) => {
         this.cartService.clearCartSignal();

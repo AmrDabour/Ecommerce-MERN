@@ -3,6 +3,9 @@ const { CartModel } = require("../models/cartModel.js");
 const { ProductModel } = require("../models/productModel.js");
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const sendEmail = require("../utils/email.js");
+const emailTemplates = require("../utils/email-templates.js");
+const { PushSubscriptionModel } = require("../models/pushSubscriptionModel.js");
+const { sendPushNotification } = require("../utils/push.js");
 
 //create order from cart
 function createOrder(req, res) {
@@ -27,8 +30,33 @@ function createOrder(req, res) {
         paymentMethod: req.body.paymentMethod || "cash",
       };
 
-      return OrderModel.create(order)
-        .then((newOrder) => {
+      const UserModel = require("../models/userModel.js").UserModel;
+      return UserModel.findById(req.user.id).then((user) => {
+        let finalPrice = order.totalPrice;
+        let amountPaidFromWallet = 0;
+        let isFullyPaidWithWallet = false;
+
+        if (req.body.useWallet && user.walletBalance > 0) {
+          if (user.walletBalance >= finalPrice) {
+            amountPaidFromWallet = finalPrice;
+            user.walletBalance -= finalPrice;
+            isFullyPaidWithWallet = true;
+          } else {
+            amountPaidFromWallet = user.walletBalance;
+            user.walletBalance = 0;
+          }
+          order.totalPrice -= amountPaidFromWallet;
+        }
+
+        return user.save().then(() => {
+          if (isFullyPaidWithWallet) {
+            order.isPaid = true;
+            order.paidAt = Date.now();
+            order.paymentMethod = "wallet";
+          }
+
+          return OrderModel.create(order)
+            .then((newOrder) => {
           //update product sold count and reduce quantity
           let updates = cart.cartItems.map((item) => {
             return ProductModel.findByIdAndUpdate(
@@ -52,22 +80,19 @@ function createOrder(req, res) {
             .then(() => {
               // Send order confirmation email asynchronously (don't await)
               if (req.user && req.user.email) {
-                const orderHTML = `
-                  <h2>Thank you for your order!</h2>
-                  <p>Your order (ID: ${newOrder._id}) has been received and is being processed.</p>
-                  <p><strong>Total Amount:</strong> $${newOrder.totalPrice.toFixed(2)}</p>
-                  <p><strong>Payment Method:</strong> ${newOrder.paymentMethod}</p>
-                `;
+                const orderHTML = emailTemplates.orderConfirmationTemplate(newOrder, req.user);
                 sendEmail({
                   email: req.user.email,
-                  subject: 'Luxe Store - Order Confirmation',
+                  subject: `Order Confirmed #${newOrder._id.toString().slice(-8).toUpperCase()}`,
                   html: orderHTML
                 }).catch(err => console.error("Error sending order email:", err));
               }
 
               res.status(201).json({ msg: "order created successfully", data: newOrder });
             });
+            });
         });
+      });
     })
     .catch((err) => {
       res.status(500).json({ msg: "Error creating order", error: err });
@@ -173,6 +198,51 @@ function updateOrderStatus(req, res) {
       if (!data) {
         return res.status(404).json({ msg: "order not found" });
       }
+      if (newStatus === "Shipped" || newStatus === "Delivered" || newStatus === "Cancelled") {
+        data.populate("user", "name email").then(populatedOrder => {
+          if (populatedOrder.user && populatedOrder.user.email) {
+            const emailHtml = emailTemplates.orderStatusUpdateTemplate(populatedOrder, populatedOrder.user, newStatus);
+            if (emailHtml) {
+              let subject = `Order Update #${populatedOrder._id.toString().slice(-8).toUpperCase()}`;
+              if (newStatus === 'Shipped') subject = 'Your Order Has Shipped! 🚚';
+              if (newStatus === 'Delivered') subject = 'Your Order Has Been Delivered! 🎉';
+              
+              sendEmail({
+                email: populatedOrder.user.email,
+                subject: subject,
+                html: emailHtml
+              }).catch(err => console.error(`Error sending ${newStatus} email:`, err));
+
+              // Send Push Notification
+              PushSubscriptionModel.find({ user: populatedOrder.user._id })
+                .then(subscriptions => {
+                  const payload = {
+                    notification: {
+                      title: subject,
+                      body: `Your order #${populatedOrder._id.toString().slice(-8).toUpperCase()} status is now: ${newStatus}`,
+                      icon: '/assets/icons/icon-192x192.png',
+                      data: {
+                        url: `${process.env.FRONTEND_URL || 'http://localhost:4200'}/orders/${populatedOrder._id}`
+                      }
+                    }
+                  };
+                  
+                  const pushPromises = subscriptions.map(sub => 
+                    sendPushNotification(sub, payload).catch(err => {
+                      if (err.statusCode === 410 || err.statusCode === 404) {
+                        return PushSubscriptionModel.findByIdAndDelete(sub._id);
+                      }
+                      console.error('Push notification error:', err);
+                    })
+                  );
+                  Promise.all(pushPromises);
+                })
+                .catch(err => console.error('Error fetching push subscriptions:', err));
+            }
+          }
+        });
+      }
+
       res.status(200).json({ msg: `order status updated to ${newStatus}`, data: data });
     })
     .catch((err) => {
@@ -273,15 +343,10 @@ function verifyPayment(req, res) {
 
           // Send payment confirmation email asynchronously
           if (order.user && order.user.email) {
-            const orderHTML = `
-              <h2>Payment Confirmed!</h2>
-              <p>Your payment for order (ID: ${order._id}) has been successfully processed.</p>
-              <p><strong>Total Paid:</strong> $${order.totalPrice.toFixed(2)}</p>
-              <p>We will notify you once it ships!</p>
-            `;
+            const orderHTML = emailTemplates.paymentConfirmedTemplate(order, order.user, pointsEarned);
             sendEmail({
               email: order.user.email,
-              subject: 'Luxe Store - Payment Confirmed',
+              subject: `Payment Confirmed #${order._id.toString().slice(-8).toUpperCase()}`,
               html: orderHTML
             }).catch(err => console.error("Error sending payment email:", err));
           }

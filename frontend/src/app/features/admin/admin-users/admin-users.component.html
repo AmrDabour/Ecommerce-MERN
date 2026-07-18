@@ -42,10 +42,17 @@
                     <td>{{ formatDate(user.createdAt) }}</td>
                     <td>
                       <div class="action-cell">
+                        <button class="action-btn" 
+                          (click)="addWalletBalance(user)" 
+                          title="Add Wallet Balance"
+                          style="background: none; border: none; cursor: pointer; padding: 0.25rem;">
+                          💰
+                        </button>
                         <button class="action-btn action-btn--delete" 
                           (click)="deleteUser(user._id)" 
                           [disabled]="user.role === 'admin'"
-                          title="Delete User">
+                          title="Delete User"
+                          style="background: none; border: none; cursor: pointer; padding: 0.25rem; opacity: user.role === 'admin' ? 0.5 : 1;">
                           🗑
                         </button>
                       </div>

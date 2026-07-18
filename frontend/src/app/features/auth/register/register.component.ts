@@ -41,6 +41,7 @@ export class RegisterComponent {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
+      referralCode: [''],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
     },
@@ -52,6 +53,7 @@ export class RegisterComponent {
   protected get regPassword() { return this.form.controls['password']; }
   protected get confirmPassword() { return this.form.controls['confirmPassword']; }
   protected get phone() { return this.form.controls['phone']; }
+  protected get referralCode() { return this.form.controls['referralCode']; }
 
   constructor() {
     this.socialAuthService.authState.pipe(takeUntilDestroyed()).subscribe((user) => {
@@ -76,8 +78,14 @@ export class RegisterComponent {
     this.loading.set(true);
     this.errorMsg.set('');
 
-    const { name, email, password, phone } = this.form.value;
-    this.authService.register({ name: name!, email: email!, password: password!, phone: phone || undefined }).subscribe({
+    const { name, email, password, phone, referralCode } = this.form.value;
+    this.authService.register({ 
+      name: name!, 
+      email: email!, 
+      password: password!, 
+      phone: phone || undefined,
+      referralCode: referralCode || undefined
+    }).subscribe({
       next: () => {
         this.toast.success('Account created! Welcome to LUXE.');
         this.loading.set(false);

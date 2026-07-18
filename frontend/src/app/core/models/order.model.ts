@@ -16,7 +16,7 @@ export interface Order {
   user: string | User;
   orderItems: OrderItem[];
   totalPrice: number;
-  paymentMethod: 'cash' | 'card';
+  paymentMethod: 'cash' | 'card' | 'wallet';
   isPaid: boolean;
   paidAt?: string;
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
@@ -29,6 +29,7 @@ export interface Order {
 }
 
 export interface CreateOrderRequest {
-  paymentMethod: 'cash' | 'card';
+  paymentMethod: 'cash' | 'card' | 'wallet';
   shippingAddress: Address;
+  useWallet?: boolean;
 }

@@ -1,4 +1,5 @@
 const { UserModel } = require("../models/userModel.js");
+const { CouponModel } = require("../models/couponModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -33,16 +34,54 @@ function getUserById(req, res) {
 }
 
 //register new user
-function addUser(req, res) {
+async function addUser(req, res) {
   let newUser = req.body;
+  const passedReferralCode = req.body.referralCode;
 
-  UserModel.create(newUser)
-    .then((data) => {
-      res.status(201).json({ msg: "user registered successfully", data: data });
-    })
-    .catch((err) => {
-      res.status(500).json({ msg: "Error registering user", error: err });
-    });
+  try {
+    let referrer = null;
+    if (passedReferralCode) {
+      referrer = await UserModel.findOne({ referralCode: passedReferralCode.toUpperCase() });
+      if (referrer) {
+        newUser.referredBy = referrer._id;
+      }
+      // Remove it from the payload so we don't try to assign the referrer's code to the new user
+      delete newUser.referralCode;
+    }
+
+    const createdUser = await UserModel.create(newUser);
+
+    if (referrer) {
+      // Increment referrer's count
+      referrer.referralCount += 1;
+      await referrer.save();
+
+      // Create 10% coupon for referrer
+      await CouponModel.create({
+        code: `REF-RWD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        discount: 10,
+        expireDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        createdFor: referrer._id,
+        usageLimit: 1,
+        type: 'referral_reward'
+      });
+
+      // Create 5% coupon for the new user
+      await CouponModel.create({
+        code: `WEL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        discount: 5,
+        expireDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        createdFor: createdUser._id,
+        usageLimit: 1,
+        type: 'referral_welcome'
+      });
+    }
+
+    res.status(201).json({ msg: "user registered successfully", data: createdUser });
+  } catch (err) {
+    console.error("Error registering user:", err);
+    res.status(500).json({ msg: "Error registering user", error: err });
+  }
 }
 
 //login user
@@ -228,4 +267,80 @@ async function googleLogin(req, res) {
   }
 }
 
-module.exports = { getUsers, getUserById, addUser, login, updateUser, deleteUser, forgotPassword, resetPassword, googleLogin };
+// Convert points to wallet balance
+async function convertPointsToWallet(req, res) {
+  try {
+    const user = await UserModel.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    const { pointsToConvert } = req.body;
+    if (!pointsToConvert || pointsToConvert <= 0) {
+      return res.status(400).json({ msg: "Invalid points amount" });
+    }
+
+    if (user.points < pointsToConvert) {
+      return res.status(400).json({ msg: "Not enough points" });
+    }
+
+    // Conversion rate: e.g., 100 points = 5 currency
+    const conversionRate = 5 / 100;
+    const addedBalance = pointsToConvert * conversionRate;
+
+    user.points -= pointsToConvert;
+    user.walletBalance += addedBalance;
+
+    await user.save();
+
+    res.status(200).json({ 
+      msg: `Successfully converted ${pointsToConvert} points to ${addedBalance} balance`, 
+      walletBalance: user.walletBalance,
+      points: user.points
+    });
+  } catch (err) {
+    console.error("Error converting points:", err);
+    res.status(500).json({ msg: "Error converting points", error: err.message });
+  }
+}
+
+// Add wallet balance to user (Admin only)
+async function addWalletBalance(req, res) {
+  try {
+    const { userId, amount } = req.body;
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ msg: "Invalid amount" });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    user.walletBalance += amount;
+    await user.save();
+
+    res.status(200).json({ 
+      msg: `Successfully added ${amount} to user's wallet`, 
+      walletBalance: user.walletBalance 
+    });
+  } catch (err) {
+    console.error("Error adding wallet balance:", err);
+    res.status(500).json({ msg: "Error adding wallet balance", error: err.message });
+  }
+}
+
+module.exports = { 
+  addUser, 
+  getUsers, 
+  getUserById, 
+  login, 
+  updateUser, 
+  deleteUser, 
+  forgotPassword, 
+  resetPassword, 
+  googleLogin,
+  convertPointsToWallet,
+  addWalletBalance
+};

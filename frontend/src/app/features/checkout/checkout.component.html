@@ -37,6 +37,24 @@
               </div>
             </div>
 
+            <!-- Wallet Balance -->
+            @if (auth.currentUser()?.walletBalance && auth.currentUser()!.walletBalance! > 0) {
+              <div class="checkout-card" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <h2 class="checkout-card__title" style="margin: 0; color: #10b981;">💰 Pay with Wallet</h2>
+                    <p style="margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--color-text-light);">
+                      Available Balance: <strong>${{ auth.currentUser()!.walletBalance | number:'1.2-2' }}</strong>
+                    </p>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" formControlName="useWallet">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            }
+
             <!-- Payment Method -->
             <div class="checkout-card">
               <h2 class="checkout-card__title">💳 Payment Method</h2>
@@ -118,9 +136,17 @@
                   <span>-${{ (getSubtotal() - cartService.cart()!.totalPriceAfterDiscount!).toFixed(2) }}</span>
                 </div>
               }
+              
+              @if (form.value.useWallet && auth.currentUser()?.walletBalance) {
+                <div class="checkout-total-row checkout-total-row--discount" style="color: #10b981;">
+                  <span>Wallet Applied</span>
+                  <span>-${{ (auth.currentUser()!.walletBalance! >= (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()) ? (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()) : auth.currentUser()!.walletBalance!).toFixed(2) }}</span>
+                </div>
+              }
+
               <div class="checkout-total-row checkout-total-row--total">
-                <strong>Total</strong>
-                <strong>${{ (cartService.cart()!.totalPriceAfterDiscount ?? getSubtotal()).toFixed(2) }}</strong>
+                <strong>Final Total</strong>
+                <strong>${{ getTotal().toFixed(2) }}</strong>
               </div>
             </div>
           }

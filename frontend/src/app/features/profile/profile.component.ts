@@ -4,11 +4,13 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { RouterLink } from '@angular/router';
+import { ReferralService, ReferralInfo } from '../../core/services/referral.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
@@ -18,8 +20,12 @@ export class ProfileComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly toast = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  private readonly referralService = inject(ReferralService);
 
   protected readonly saving = signal(false);
+  protected readonly referralInfo = signal<ReferralInfo | null>(null);
+  protected readonly loadingReferral = signal(true);
+  protected readonly converting = signal(false);
 
   protected readonly form = this.fb.group({
     phone: [''],
@@ -36,6 +42,16 @@ export class ProfileComponent implements OnInit {
       this.form.patchValue({
         phone: user.phone || '',
         address: user.address || { street: '', city: '', zip: '' },
+      });
+      
+      this.referralService.getMyInfo().subscribe({
+        next: (res) => {
+          this.referralInfo.set(res.data);
+          this.loadingReferral.set(false);
+        },
+        error: () => {
+          this.loadingReferral.set(false);
+        }
       });
     }
   }
@@ -58,6 +74,40 @@ export class ProfileComponent implements OnInit {
         this.saving.set(false);
         this.toast.error('Failed to update profile');
       },
+    });
+  }
+
+  protected convertPoints(): void {
+    const user = this.authService.currentUser();
+    if (!user || !user.points || user.points <= 0) {
+      this.toast.error('You do not have enough points to convert.');
+      return;
+    }
+
+    const pointsToConvert = parseInt(prompt(`How many points do you want to convert? (Max: ${user.points})`, user.points.toString()) || '0', 10);
+    if (isNaN(pointsToConvert) || pointsToConvert <= 0) return;
+    
+    if (pointsToConvert > user.points) {
+      this.toast.error('You cannot convert more points than you have.');
+      return;
+    }
+
+    this.converting.set(true);
+    this.userService.convertPointsToWallet(pointsToConvert).subscribe({
+      next: (res) => {
+        this.converting.set(false);
+        this.toast.success(res.msg);
+        // Update user state
+        this.authService.updateCachedUser({ 
+          ...user, 
+          points: res.points, 
+          walletBalance: res.walletBalance 
+        });
+      },
+      error: (err) => {
+        this.converting.set(false);
+        this.toast.error(err.error?.msg || 'Failed to convert points');
+      }
     });
   }
 }

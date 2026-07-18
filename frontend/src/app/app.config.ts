@@ -43,7 +43,7 @@ export const appConfig: ApplicationConfig = {
       multi: true,
     },
     provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: true,
       registrationStrategy: 'registerWhenStable:30000',
     }),
     {
@@ -53,7 +53,10 @@ export const appConfig: ApplicationConfig = {
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider(environment.googleClientId)
+            provider: new GoogleLoginProvider(environment.googleClientId, {
+              oneTapEnabled: false,
+              prompt: 'select_account'
+            })
           }
         ],
         onError: (err) => {

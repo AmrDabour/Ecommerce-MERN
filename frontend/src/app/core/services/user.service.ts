@@ -25,4 +25,12 @@ export class UserService {
   deleteUser(id: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/users/${id}`);
   }
+
+  convertPointsToWallet(pointsToConvert: number): Observable<{msg: string, walletBalance: number, points: number}> {
+    return this.http.post<{msg: string, walletBalance: number, points: number}>(`${this.apiUrl}/users/wallet/convert-points`, { pointsToConvert });
+  }
+
+  addWalletBalance(userId: string, amount: number): Observable<{msg: string, walletBalance: number}> {
+    return this.http.post<{msg: string, walletBalance: number}>(`${this.apiUrl}/users/wallet/add`, { userId, amount });
+  }
 }

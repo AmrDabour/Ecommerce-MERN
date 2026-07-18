@@ -12,6 +12,7 @@ import {
   RegisterRequest,
 } from '../models/user.model';
 import { ApiResponse } from '../models/api-response.model';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 const TOKEN_KEY = 'ecommerce_token';
 const USER_KEY = 'ecommerce_user';
@@ -20,6 +21,7 @@ const USER_KEY = 'ecommerce_user';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly socialAuthService = inject(SocialAuthService);
   private readonly apiUrl = environment.apiUrl;
 
   // ── Signals ──
@@ -149,6 +151,9 @@ export class AuthService {
   /** Logout: clear state and redirect */
   logout(): void {
     this.clearStorage();
+    try {
+      this.socialAuthService.signOut().catch(() => {});
+    } catch (e) {}
     this.router.navigate(['/login']);
   }
 

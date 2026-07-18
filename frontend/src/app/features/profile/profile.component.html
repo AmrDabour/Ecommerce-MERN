@@ -16,13 +16,13 @@
               <div style="font-size: 0.875rem; font-weight: 500; color: var(--color-text-light);">Loyalty Program</div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.875rem; font-weight: 600;">Tier</span>
-                <span class="badge badge--{{ authService.currentUser()?.loyaltyTier?.toLowerCase() || 'bronze' }}" style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: var(--color-primary-light); color: var(--color-primary);">
+                <span class="badge badge--{{ authService.currentUser()?.loyaltyTier?.toLowerCase() || 'bronze' }}" style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: var(--color-accent-light); color: var(--color-accent);">
                   {{ authService.currentUser()?.loyaltyTier || 'Bronze' }}
                 </span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.875rem; font-weight: 600;">Points</span>
-                <span style="font-size: 0.875rem; font-weight: 700; color: var(--color-primary);">
+                <span style="font-size: 0.875rem; font-weight: 700; color: var(--color-accent);">
                   {{ authService.currentUser()?.points || 0 }} pts
                 </span>
               </div>
@@ -43,6 +43,32 @@
           <h1 class="profile-title">Profile Settings</h1>
 
           <div class="profile-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h2 class="profile-card__title" style="margin-bottom: 0.5rem;">My Wallet & Points 💰</h2>
+                <p class="profile-card__desc" style="margin-bottom: 0;">Convert your loyalty points to real money and use it for purchases.</p>
+              </div>
+              <div style="display: flex; gap: 1rem;">
+                <div style="background: var(--color-bg-subtle); padding: 1rem; border-radius: 8px; text-align: center; min-width: 120px;">
+                  <div style="font-size: 0.875rem; color: var(--color-text-light);">Wallet Balance</div>
+                  <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;">
+                    ${{ authService.currentUser()?.walletBalance || 0 | number:'1.2-2' }}
+                  </div>
+                </div>
+                <div style="background: var(--color-bg-subtle); padding: 1rem; border-radius: 8px; text-align: center; min-width: 120px;">
+                  <div style="font-size: 0.875rem; color: var(--color-text-light);">Loyalty Points</div>
+                  <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent);">
+                    {{ authService.currentUser()?.points || 0 }}
+                  </div>
+                  <button (click)="convertPoints()" [disabled]="converting()" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; background: var(--color-accent); color: white; border: none; border-radius: 4px; font-size: 0.875rem; cursor: pointer;">
+                    {{ converting() ? 'Converting...' : 'Convert Points' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-card" style="margin-top: 1.5rem;">
             <h2 class="profile-card__title">Personal Information</h2>
             <p class="profile-card__desc">Update your personal details and address.</p>
 
@@ -77,6 +103,37 @@
                 </button>
               </div>
             </form>
+          </div>
+
+          <div class="profile-card" style="margin-top: 1.5rem;">
+            <h2 class="profile-card__title">Invite Friends & Earn</h2>
+            <p class="profile-card__desc">Share your referral code and get a 10% discount for every friend who signs up!</p>
+            
+            @if (loadingReferral()) {
+              <div class="profile-spinner" style="margin: 20px auto; border-color: var(--color-accent) transparent var(--color-accent) transparent;"></div>
+            } @else if (referralInfo()) {
+              <div style="background: var(--color-bg-subtle); padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--color-border); text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 0.875rem; color: var(--color-text-light); margin-bottom: 0.5rem;">Your Unique Referral Code</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); letter-spacing: 2px;">{{ referralInfo()?.referralCode }}</div>
+                <div style="margin-top: 1rem; font-size: 0.875rem;">
+                  <span style="font-weight: 600;">{{ referralInfo()?.referralCount }}</span> friends joined using your code.
+                </div>
+              </div>
+
+              @if (referralInfo()?.earnedCoupons?.length) {
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Your Earned Coupons</h3>
+                <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                  @for (coupon of referralInfo()?.earnedCoupons; track coupon._id) {
+                    <div style="background: var(--color-accent); color: white; padding: 1rem; border-radius: 8px; position: relative; overflow: hidden;">
+                      <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">{{ coupon.code }}</div>
+                      <div style="font-size: 0.875rem; opacity: 0.9;">{{ coupon.discount }}% OFF</div>
+                      <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 0.5rem;">Expires: {{ coupon.expireDate | date }}</div>
+                      <div style="font-size: 0.75rem; opacity: 0.8;">Status: {{ coupon.usedCount >= coupon.usageLimit ? 'Used' : 'Available' }}</div>
+                    </div>
+                  }
+                </div>
+              }
+            }
           </div>
         </div>
       </div>

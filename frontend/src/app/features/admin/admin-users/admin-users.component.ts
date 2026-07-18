@@ -49,4 +49,25 @@ export class AdminUsersComponent implements OnInit {
       error: () => this.toast.error('Could not delete user.')
     });
   }
+
+  protected addWalletBalance(user: User): void {
+    const amountStr = prompt(`Enter amount to add to ${user.name}'s wallet:`, '50');
+    if (!amountStr) return;
+    
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      this.toast.error('Invalid amount.');
+      return;
+    }
+
+    this.userService.addWalletBalance(user._id, amount).subscribe({
+      next: (res) => {
+        this.toast.success(`Added $${amount} to ${user.name}'s wallet.`);
+        this.loadUsers();
+      },
+      error: (err) => {
+        this.toast.error(err.error?.msg || 'Could not add wallet balance.');
+      }
+    });
+  }
 }

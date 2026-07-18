@@ -19,6 +19,23 @@ const couponSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    createdFor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
+    },
+    usageLimit: {
+      type: Number,
+      default: 1, // How many times this code can be used (1 for referral coupons)
+    },
+    usedCount: {
+      type: Number,
+      default: 0,
+    },
+    type: {
+      type: String,
+      enum: ['general', 'referral_reward', 'referral_welcome'],
+      default: 'general',
+    }
   },
   { timestamps: true },
 );

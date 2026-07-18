@@ -10,7 +10,6 @@ const mongoose = require("mongoose");
 // Initialize Cron Jobs
 require('./cron/abandonedCart.js');
 
-//import all routers
 const { router: userRouter } = require("./routes/users.js");
 const { router: categoryRouter } = require("./routes/categories.js");
 const { router: productRouter } = require("./routes/products.js");
@@ -22,6 +21,9 @@ const wishlistRouter = require("./routes/wishlist.js");
 const newsletterRouter = require("./routes/newsletter.js");
 const chatRouter = require("./routes/chat.js");
 const recommendationsRouter = require("./routes/recommendations.js");
+const { referralRouter } = require("./routes/referral.js");
+const { router: notificationsRouter } = require("./routes/notifications.js");
+
 //cors>>cross origin
 app.use(
   cors({
@@ -63,9 +65,11 @@ app.use("/cart", cartRouter);
 app.use("/orders", orderRouter);
 app.use("/coupons", couponRouter);
 app.use("/wishlist", wishlistRouter);
-app.use("/newsletter", newsletterRouter);
 app.use("/chat", chatRouter);
+app.use("/newsletter", newsletterRouter);
 app.use("/recommendations", recommendationsRouter);
+app.use("/referral", referralRouter);
+app.use("/notifications", notificationsRouter);
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
 

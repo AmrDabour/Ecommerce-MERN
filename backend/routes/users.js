@@ -1,5 +1,5 @@
 //endpoint>>crud operations ///get post patch delete>>>users
-const { addUser, getUsers, getUserById, login, updateUser, deleteUser, forgotPassword, resetPassword, googleLogin } = require("../controller/users.js");
+const { addUser, getUsers, getUserById, login, updateUser, deleteUser, forgotPassword, resetPassword, googleLogin, convertPointsToWallet, addWalletBalance } = require("../controller/users.js");
 const express = require("express");
 const { isAuth } = require("../middleware/isAuth.js");
 const { isAdmin } = require("../middleware/isAdmin.js");
@@ -20,6 +20,8 @@ router.post("/login", authLimiter, login);
 router.post("/google-login", authLimiter, googleLogin);
 router.post("/forgot-password", authLimiter, forgotPassword);
 router.post("/reset-password", authLimiter, resetPassword);
+router.post("/wallet/convert-points", isAuth, convertPointsToWallet);
+router.post("/wallet/add", isAuth, isAdmin, addWalletBalance);
 router.patch("/:id", isAuth, updateUser);
 router.delete("/:id", isAuth, isAdmin, deleteUser);
 

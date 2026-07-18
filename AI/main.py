@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
 from config.settings import settings
 
@@ -14,6 +15,14 @@ if settings.SENTRY_DSN:
     )
 
 app = FastAPI(title="E-commerce AI Services", description="AI assistant and recommendation engine.")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include routers
 app.include_router(chatbot_router)
