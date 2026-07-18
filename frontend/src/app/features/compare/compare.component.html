@@ -1,0 +1,98 @@
+<div class="compare-page container">
+  <div class="page-header">
+    <h1>Compare Products</h1>
+    <button *ngIf="compareItems.length > 0" class="btn-clear" (click)="clearCompare()">
+      Clear All
+    </button>
+  </div>
+
+  <div class="empty-state" *ngIf="compareItems.length === 0">
+    <div class="empty-icon">⚖️</div>
+    <h2>Your comparison list is empty</h2>
+    <p>Add products to compare their features and prices.</p>
+    <a routerLink="/products" class="btn btn-primary">Go to Shop</a>
+  </div>
+
+  <div class="compare-table-wrapper" *ngIf="compareItems.length > 0">
+    <table class="compare-table">
+      <tbody>
+        <!-- Images and Actions -->
+        <tr class="row-images">
+          <th>Product</th>
+          <td *ngFor="let product of compareItems">
+            <button class="btn-remove" (click)="removeFromCompare(product._id!)" aria-label="Remove from compare" title="Remove">✕</button>
+            <div class="img-wrapper">
+              <img [src]="getImageUrl(product.imageCover)" [alt]="product.name" />
+            </div>
+            <a [routerLink]="['/products', product._id]" class="product-name">{{ product.name }}</a>
+          </td>
+        </tr>
+
+        <!-- Price -->
+        <tr>
+          <th>Price</th>
+          <td *ngFor="let product of compareItems">
+            <div class="price-container">
+              <span class="price" [class.discounted]="product.priceAfterDiscount">
+                ${{ product.priceAfterDiscount || product.price }}
+              </span>
+              <span class="old-price" *ngIf="product.priceAfterDiscount">
+                ${{ product.price }}
+              </span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Ratings -->
+        <tr>
+          <th>Rating</th>
+          <td *ngFor="let product of compareItems">
+            <div class="rating">
+              <span class="star">★</span>
+              <span class="value">{{ product.ratingsAvg || 0 }}</span>
+              <span class="count">({{ product.ratingsCount || 0 }})</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Category -->
+        <tr>
+          <th>Category</th>
+          <td *ngFor="let product of compareItems">
+            {{ $any(product.category)?.name || 'N/A' }}
+          </td>
+        </tr>
+
+
+        <!-- Colors -->
+        <tr>
+          <th>Colors</th>
+          <td *ngFor="let product of compareItems">
+            <div class="colors" *ngIf="product.colors?.length; else noColors">
+              <span *ngFor="let color of product.colors" class="color-dot" [style.backgroundColor]="color" [title]="color"></span>
+            </div>
+            <ng-template #noColors>N/A</ng-template>
+          </td>
+        </tr>
+
+        <!-- Description -->
+        <tr class="row-description">
+          <th>Description</th>
+          <td *ngFor="let product of compareItems">
+            <p class="desc">{{ product.description }}</p>
+          </td>
+        </tr>
+
+        <!-- Add to Cart -->
+        <tr>
+          <th></th>
+          <td *ngFor="let product of compareItems">
+            <button class="btn btn-primary btn-block" (click)="addToCart(product)">
+              Add to Cart
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

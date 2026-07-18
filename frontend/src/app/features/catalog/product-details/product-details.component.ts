@@ -13,6 +13,7 @@ import { Review } from '../../../core/models/review.model';
 import { User } from '../../../core/models/user.model';
 import { RecommendationService } from '../../../core/services/recommendation.service';
 import { RecentlyViewedService } from '../../../core/services/recently-viewed';
+import { CompareService } from '../../../core/services/compare.service';
 import { Skeleton } from '../../../shared/components/skeleton/skeleton';
 import { ProductCardSkeleton } from '../../../shared/components/product-card-skeleton/product-card-skeleton';
 import { ProductCard } from '../../../shared/components/product-card/product-card';
@@ -31,6 +32,7 @@ export class ProductDetailsComponent implements OnInit {
   private readonly reviewService = inject(ReviewService);
   private readonly cartService = inject(CartService);
   protected readonly auth = inject(AuthService);
+  protected readonly compareService = inject(CompareService);
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
@@ -176,6 +178,12 @@ export class ProductDetailsComponent implements OnInit {
       }
       this.adding.set(false);
       this.toast.success('Added to cart!');
+    }
+  }
+
+  protected addToCompare(): void {
+    if (this.product()) {
+      this.compareService.addToCompare(this.product()!);
     }
   }
 

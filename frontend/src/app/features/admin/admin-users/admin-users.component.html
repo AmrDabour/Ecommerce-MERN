@@ -16,6 +16,7 @@
                 <tr>
                   <th>User</th>
                   <th>Role</th>
+                  <th>Wallet</th>
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
@@ -39,6 +40,7 @@
                         <app-badge variant="neutral" pill>Customer</app-badge>
                       }
                     </td>
+                    <td><span style="color: #10b981; font-weight: 600;">${{ user.walletBalance || 0 | number:'1.2-2' }}</span></td>
                     <td>{{ formatDate(user.createdAt) }}</td>
                     <td>
                       <div class="action-cell">

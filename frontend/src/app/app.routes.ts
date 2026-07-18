@@ -50,6 +50,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'compare',
+    loadComponent: () =>
+      import('./features/compare/compare.component').then((m) => m.CompareComponent),
+  },
+  {
     path: 'cart',
     loadComponent: () =>
       import('./features/cart/cart.component').then((m) => m.CartComponent),
@@ -147,6 +152,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/admin-coupons/admin-coupons.component').then(
             (m) => m.AdminCouponsComponent,
+          ),
+      },
+      {
+        path: 'gift-cards',
+        loadComponent: () =>
+          import('./features/admin/admin-gift-cards/admin-gift-cards.component').then(
+            (m) => m.AdminGiftCardsComponent,
+          ),
+      },
+      {
+        path: 'chat',
+        loadComponent: () =>
+          import('./features/admin/admin-live-chat/admin-live-chat').then(
+            (m) => m.AdminLiveChatComponent,
           ),
       },
     ],

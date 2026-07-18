@@ -3,11 +3,12 @@ import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { User } from '../../../core/models/user.model';
 import { BadgeComponent } from '../../../shared/ui/badge/badge.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [BadgeComponent],
+  imports: [BadgeComponent, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',

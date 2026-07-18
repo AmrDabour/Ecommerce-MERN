@@ -31,6 +31,13 @@
           <a routerLink="/admin/coupons" routerLinkActive="active" class="admin-nav__link">
             <span class="admin-nav__icon">🏷</span> Coupons
           </a>
+          <a routerLink="/admin/gift-cards" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">🎴</span> Gift Cards
+          </a>
+          <a routerLink="/admin/chat" routerLinkActive="active" class="admin-nav__link">
+            <span class="admin-nav__icon">💬</span> Live Chat
+            <span class="badge badge--small" style="margin-left: auto; background: var(--color-primary); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.7rem;" *ngIf="liveChat.adminUnreadCount()">{{ liveChat.adminUnreadCount() }}</span>
+          </a>
         </nav>
 
         <div class="admin-sidebar__footer">

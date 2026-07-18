@@ -49,10 +49,12 @@ function createOrder(req, res) {
         }
 
         return user.save().then(() => {
-          if (isFullyPaidWithWallet) {
+          if (isFullyPaidWithWallet || order.totalPrice === 0) {
             order.isPaid = true;
             order.paidAt = Date.now();
-            order.paymentMethod = "wallet";
+            if (isFullyPaidWithWallet) {
+              order.paymentMethod = "wallet";
+            }
           }
 
           return OrderModel.create(order)
@@ -220,7 +222,7 @@ function updateOrderStatus(req, res) {
                     notification: {
                       title: subject,
                       body: `Your order #${populatedOrder._id.toString().slice(-8).toUpperCase()} status is now: ${newStatus}`,
-                      icon: '/assets/icons/icon-192x192.png',
+                      icon: '/icons/icon-192x192.png',
                       data: {
                         url: `${process.env.FRONTEND_URL || 'http://localhost:4200'}/orders/${populatedOrder._id}`
                       }
@@ -328,9 +330,10 @@ function verifyPayment(req, res) {
           { isPaid: true, paidAt: Date.now() },
           { new: true }
         ).populate('user').then(async (order) => {
+          let pointsEarned = 0;
           // Reward points (1 point per $1 spent)
           if (order.user) {
-            const pointsEarned = Math.floor(order.totalPrice);
+            pointsEarned = Math.floor(order.totalPrice);
             order.user.points += pointsEarned;
             
             // Update loyalty tier

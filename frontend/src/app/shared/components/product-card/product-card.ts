@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject, signal, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject, signal, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart.service';
@@ -7,11 +8,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { QuickViewService } from '../../../core/services/quick-view';
 import { ToastService } from '../../ui/toast/toast.service';
 import { TiltDirective } from '../../directives/tilt.directive';
+import { CompareService } from '../../../core/services/compare.service';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [RouterLink, TiltDirective],
+  imports: [CommonModule, RouterLink, TiltDirective],
   templateUrl: './product-card.html',
   styleUrl: './product-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,8 +23,9 @@ export class ProductCard {
   
   @Output() quickView = new EventEmitter<Product>();
 
-  private readonly cartService = inject(CartService);
-  public readonly wishlistService = inject(WishlistService);
+  protected readonly cartService = inject(CartService);
+  protected readonly wishlistService = inject(WishlistService);
+  protected readonly compareService = inject(CompareService);
   private readonly authService = inject(AuthService);
   private readonly quickViewService = inject(QuickViewService);
   private readonly toast = inject(ToastService);
@@ -41,7 +44,9 @@ export class ProductCard {
     return Math.round((1 - p.priceAfterDiscount / p.price) * 100);
   }
 
-  public addToCart(): void {
+  public addToCart(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
     const p = this.product();
     if (this.authService.isAuthenticated()) {
       this.isAdding.set(true);
@@ -61,7 +66,9 @@ export class ProductCard {
     }
   }
 
-  public toggleWishlist(): void {
+  public toggleWishlist(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
     const p = this.product();
     if (!this.authService.isAuthenticated()) {
       this.toast.error('Please login to add to wishlist');
@@ -82,5 +89,11 @@ export class ProductCard {
   public onQuickViewClick(): void {
     this.quickView.emit(this.product());
     this.quickViewService.open(this.product());
+  }
+
+  public addToCompare(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.compareService.addToCompare(this.product());
   }
 }

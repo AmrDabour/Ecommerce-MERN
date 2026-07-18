@@ -112,7 +112,7 @@ export class CheckoutComponent implements OnInit {
       next: (res) => {
         this.cartService.clearCartSignal();
         
-        if (paymentMethod === 'card') {
+        if (res.data.paymentMethod === 'card' && res.data.totalPrice > 0) {
           // Trigger Stripe Checkout
           this.orderService.createCheckoutSession(res.data._id).subscribe({
             next: (sessionRes) => {
@@ -124,6 +124,7 @@ export class CheckoutComponent implements OnInit {
             }
           });
         } else {
+          this.auth.refreshUser().subscribe();
           this.toast.success('Order placed successfully!');
           this.router.navigate(['/orders', res.data._id]);
         }

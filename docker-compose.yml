@@ -39,6 +39,8 @@ services:
       context: ./AI
       dockerfile: Dockerfile
     container_name: lure_ai
+    ports:
+      - "8000:8000"
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - MONGO_URI=mongodb://mongodb:27017/

@@ -5,6 +5,7 @@ import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { RouterLink } from '@angular/router';
 import { ReferralService, ReferralInfo } from '../../core/services/referral.service';
+import { GiftCardService } from '../../core/services/gift-card.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -21,8 +22,10 @@ export class ProfileComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly fb = inject(FormBuilder);
   private readonly referralService = inject(ReferralService);
+  private readonly giftCardService = inject(GiftCardService);
 
   protected readonly saving = signal(false);
+  protected readonly redeeming = signal(false);
   protected readonly referralInfo = signal<ReferralInfo | null>(null);
   protected readonly loadingReferral = signal(true);
   protected readonly converting = signal(false);
@@ -34,6 +37,10 @@ export class ProfileComponent implements OnInit {
       city: [''],
       zip: [''],
     }),
+  });
+
+  protected readonly giftCardForm = this.fb.group({
+    code: ['', Validators.required],
   });
 
   ngOnInit(): void {
@@ -107,6 +114,33 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         this.converting.set(false);
         this.toast.error(err.error?.msg || 'Failed to convert points');
+      }
+    });
+  }
+
+  protected redeemGiftCard(): void {
+    if (this.giftCardForm.invalid) return;
+    this.redeeming.set(true);
+    const code = this.giftCardForm.value.code!;
+    
+    this.giftCardService.redeemGiftCard(code).subscribe({
+      next: (res) => {
+        this.redeeming.set(false);
+        this.toast.success(res.msg);
+        this.giftCardForm.reset();
+        
+        // Update wallet balance
+        const user = this.authService.currentUser();
+        if (user) {
+          this.authService.updateCachedUser({
+            ...user,
+            walletBalance: res.newBalance
+          });
+        }
+      },
+      error: (err) => {
+        this.redeeming.set(false);
+        this.toast.error(err.error?.msg || 'Failed to redeem gift card');
       }
     });
   }

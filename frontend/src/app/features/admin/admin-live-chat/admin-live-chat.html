@@ -1,0 +1,88 @@
+<div class="admin-chat-container">
+  <!-- Left Sidebar: Active Rooms -->
+  <div class="chat-sidebar">
+    <div class="sidebar-header">
+      <h2>Live Chats</h2>
+      <span class="badge" *ngIf="liveChat.activeRooms().length">{{ liveChat.activeRooms().length }}</span>
+    </div>
+
+    <div class="rooms-list">
+      <div *ngIf="liveChat.activeRooms().length === 0" class="no-rooms">
+        <p>No active chats at the moment.</p>
+      </div>
+
+      <div 
+        class="room-item" 
+        *ngFor="let room of liveChat.activeRooms()"
+        [class.active]="selectedRoomId() === room.sessionId"
+        (click)="selectRoom(room.sessionId)"
+      >
+        <div class="room-avatar">
+          {{ room.user ? room.user.name.charAt(0).toUpperCase() : 'G' }}
+        </div>
+        <div class="room-info">
+          <h4>{{ room.user ? room.user.name : 'Guest User' }}</h4>
+          <p class="last-message" *ngIf="room.messages.length > 0">
+            {{ room.messages[room.messages.length - 1].text }}
+          </p>
+          <span class="time">{{ room.updatedAt | date:'shortTime' }}</span>
+        </div>
+        <div class="unread-badge" *ngIf="room.unreadCountAdmin > 0">
+          {{ room.unreadCountAdmin }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Chat Area -->
+  <div class="chat-area">
+    <div *ngIf="!selectedRoomId()" class="no-chat-selected">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <h3>Select a conversation</h3>
+      <p>Choose a chat from the sidebar to start replying.</p>
+    </div>
+
+    <div *ngIf="selectedRoomId()" class="chat-wrapper">
+      <div class="chat-header">
+        <h3>{{ selectedRoomId() }}</h3>
+        <span class="status online">Live</span>
+      </div>
+
+      <div class="chat-messages" #messagesContainer>
+        <div *ngIf="liveChat.messages().length === 0" class="empty-messages">
+          <p>No messages yet in this session.</p>
+        </div>
+
+        <div 
+          class="message" 
+          *ngFor="let msg of liveChat.messages()"
+          [class.message--agent]="msg.sender === 'Agent'"
+          [class.message--user]="msg.sender === 'User'"
+        >
+          <div class="message__content">
+            <div class="message__text">{{ msg.text }}</div>
+            <div class="message__time">{{ msg.timestamp | date:'shortTime' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <input 
+          type="text" 
+          placeholder="Type your reply here..." 
+          [ngModel]="newMessage()"
+          (ngModelChange)="newMessage.set($event)"
+          (keyup.enter)="sendMessage()"
+        />
+        <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage().trim()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

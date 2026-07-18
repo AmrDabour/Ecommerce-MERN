@@ -66,6 +66,20 @@
                 </div>
               </div>
             </div>
+
+            <!-- Redeem Gift Card Section -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+              <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Redeem a Gift Card 🎴</h3>
+              <p style="color: var(--color-text-light); font-size: 0.875rem; margin-bottom: 1rem;">Enter your gift card code to add funds directly to your wallet balance.</p>
+              
+              <form [formGroup]="giftCardForm" (ngSubmit)="redeemGiftCard()" style="display: flex; gap: 1rem; max-width: 400px;">
+                <input type="text" formControlName="code" class="form-input" placeholder="e.g. LUXE-GIFT-XXXXXX" style="text-transform: uppercase;" />
+                <button type="submit" class="profile-submit" [disabled]="redeeming() || giftCardForm.invalid" style="min-width: 120px;">
+                  @if (redeeming()) { <span class="profile-spinner" style="width: 16px; height: 16px; border-width: 2px;"></span> }
+                  {{ redeeming() ? 'Redeeming…' : 'Redeem' }}
+                </button>
+              </form>
+            </div>
           </div>
 
           <div class="profile-card" style="margin-top: 1.5rem;">

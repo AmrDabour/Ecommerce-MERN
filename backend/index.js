@@ -4,6 +4,8 @@ const Sentry = require("@sentry/node");
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const http = require("http");
+const { Server } = require("socket.io");
 const { logger } = require("./middleware/logger.js");
 const mongoose = require("mongoose");
 
@@ -22,7 +24,11 @@ const newsletterRouter = require("./routes/newsletter.js");
 const chatRouter = require("./routes/chat.js");
 const recommendationsRouter = require("./routes/recommendations.js");
 const { referralRouter } = require("./routes/referral.js");
+const giftCardRoute = require("./routes/giftCards");
+const { webhookCheckout } = require("./controller/orders");
 const { router: notificationsRouter } = require("./routes/notifications.js");
+const liveChatRouter = require("./routes/liveChat.js");
+const socketHandler = require("./utils/socketHandler.js");
 
 //cors>>cross origin
 app.use(
@@ -41,9 +47,12 @@ const rateLimit = require("express-rate-limit");
 // Set security HTTP headers
 app.use(helmet());
 
+// Trust proxy so it gets the real client IP instead of 127.0.0.1
+app.set('trust proxy', 1);
+
 // Limit requests from same API
 const limiter = rateLimit({
-  max: 200, // Limit each IP to 200 requests per windowMs
+  max: 5000, // Limit each IP to 5000 requests per windowMs
   windowMs: 15 * 60 * 1000, // 15 minutes
   message: "Too many requests from this IP, please try again in 15 minutes",
 });
@@ -70,6 +79,8 @@ app.use("/newsletter", newsletterRouter);
 app.use("/recommendations", recommendationsRouter);
 app.use("/referral", referralRouter);
 app.use("/notifications", notificationsRouter);
+app.use("/gift-cards", giftCardRoute);
+app.use("/live-chat", liveChatRouter);
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
 
@@ -95,12 +106,23 @@ mongoose
   });
 
 //start server
-app.listen(process.env.PORT, (err) => {
+const server = http.createServer(app);
+
+// Initialize Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+socketHandler(io);
+
+server.listen(process.env.PORT, (err) => {
   if (err) {
     console.log(err);
   }
 
-  console.log("port connected successfully");
+  console.log(`Server connected successfully on port ${process.env.PORT}`);
 });
 
 //////  MVC >> MODEL VIEW CONTROLLER

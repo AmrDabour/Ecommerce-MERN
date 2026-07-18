@@ -21,8 +21,8 @@
 
   .wishlist-btn {
     position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
+    top: 8px;
+    right: 8px;
     z-index: 10;
     width: 36px;
     height: 36px;
@@ -49,8 +49,8 @@
 
   .quick-view-btn {
     position: absolute;
-    top: var(--space-12);
-    right: var(--space-2);
+    top: 50px;
+    right: 8px;
     z-index: 10;
     width: 36px;
     height: 36px;
@@ -76,6 +76,42 @@
   &:hover .quick-view-btn {
     opacity: 1;
     transform: translateX(0);
+  }
+
+  .compare-btn {
+    position: absolute;
+    top: 92px;
+    right: 8px;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-secondary);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s;
+    opacity: 0;
+    transform: translateX(10px);
+
+    &:hover {
+      transform: scale(1.1) translateX(0);
+      color: var(--color-accent);
+    }
+    
+    &--active {
+      color: var(--color-accent);
+    }
+  }
+
+  &:hover .compare-btn {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.05s;
   }
 }
 
@@ -154,7 +190,7 @@
   margin-bottom: var(--space-3);
   line-height: var(--leading-snug);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   &:hover { color: var(--color-accent); }

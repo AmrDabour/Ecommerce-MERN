@@ -38,8 +38,8 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       enum: {
-        values: ["cash", "card"],
-        message: "payment method must be cash or card",
+        values: ["cash", "card", "wallet"],
+        message: "payment method must be cash, card, or wallet",
       },
       default: "cash",
     },

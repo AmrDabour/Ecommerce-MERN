@@ -57,6 +57,14 @@ export class AuthService {
         const user = JSON.parse(userJson) as User;
         this._token.set(token);
         this._currentUser.set(user);
+        
+        // Silently refresh the user in the background to get latest data (e.g. updated wallet balance)
+        setTimeout(() => {
+          this.refreshUser().subscribe({
+            next: () => {},
+            error: () => {} // ignore errors (e.g. offline), we already have the cached user
+          });
+        }, 100);
       } catch {
         this.clearStorage();
       }
@@ -166,6 +174,18 @@ export class AuthService {
   updateCachedUser(user: User): void {
     this._currentUser.set(user);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+  }
+
+  /** Fetch current user from backend and update cache */
+  refreshUser(): Observable<User> {
+    const payload = this.decodeToken(this._token()!);
+    if (!payload?.id) return throwError(() => new Error('No user to refresh'));
+    return this.http.get<ApiResponse<User>>(`${this.apiUrl}/users/${payload.id}`).pipe(
+      tap(res => {
+        this.updateCachedUser(res.data);
+      }),
+      switchMap(res => of(res.data))
+    );
   }
 
   /** Forgot Password: POST /users/forgot-password */

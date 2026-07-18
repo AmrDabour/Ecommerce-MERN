@@ -41,7 +41,8 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
-  protected getUserName(user: string | User): string {
+  protected getUserName(user: string | User | null): string {
+    if (!user) return 'Guest / Deleted';
     if (typeof user === 'string') return 'User';
     return user.name ?? 'User';
   }

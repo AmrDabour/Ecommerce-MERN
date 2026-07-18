@@ -1,0 +1,245 @@
+
+.compare-page {
+  padding: 4rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 200px);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+
+  .btn-clear {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #ef4444;
+      color: white;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 6rem 2rem;
+  background: var(--surface-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+
+  p {
+    color: #64748b;
+    margin-bottom: 2rem;
+  }
+}
+
+.compare-table-wrapper {
+  overflow-x: auto;
+  background: var(--surface-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  
+  /* Styling scrollbar for smooth horizontal scrolling */
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(var(--primary-color-rgb), 0.5);
+    border-radius: 4px;
+  }
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* Ensure it scrolls on small screens instead of squishing */
+
+  th, td {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: top;
+  }
+
+  th {
+    width: 200px;
+    text-align: left;
+    font-weight: 600;
+    color: #64748b;
+    background: rgba(0, 0, 0, 0.02);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  td {
+    width: 300px;
+    position: relative;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  /* Specific Row Styles */
+  .row-images {
+    td {
+      text-align: center;
+      padding-top: 2rem;
+    }
+
+    .btn-remove {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+
+      &:hover {
+        background: #ef4444;
+        color: white;
+        transform: scale(1.1);
+      }
+    }
+
+    .img-wrapper {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .product-name {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .price-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .price {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-color);
+
+      &.discounted {
+        color: #ef4444;
+      }
+    }
+
+    .old-price {
+      font-size: 1rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .star {
+      color: #fbbf24;
+      font-size: 1.25rem;
+    }
+
+    .value {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .count {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+  }
+
+  .colors {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+  }
+
+  .row-description {
+    .desc {
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: normal;
+      margin: 0;
+    }
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+}

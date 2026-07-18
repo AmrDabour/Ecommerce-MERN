@@ -7,6 +7,7 @@ import { CartDrawerService } from '../../shared/ui/cart-drawer/cart-drawer.servi
 import { SearchBarComponent } from '../../shared/ui/search-bar/search-bar.component';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { PushNotificationService } from '../../core/services/push-notification.service';
+import { CompareService } from '../../core/services/compare.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent, throttleTime } from 'rxjs';
 
@@ -28,6 +29,7 @@ export class HeaderComponent implements OnInit {
   readonly cartDrawer = inject(CartDrawerService);
   readonly wishlistService = inject(WishlistService);
   readonly pushNotificationService = inject(PushNotificationService);
+  readonly compareService = inject(CompareService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
 
