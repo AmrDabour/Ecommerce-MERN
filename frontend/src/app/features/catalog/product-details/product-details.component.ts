@@ -49,6 +49,7 @@ export class ProductDetailsComponent implements OnInit {
   protected readonly qty = signal(1);
   protected readonly selectedColor = signal<string | null>(null);
   protected readonly selectedSize = signal<string | null>(null);
+  protected readonly selectedCustomOptions = signal<Record<string, string>>({});
 
   protected readonly reviewForm = this.fb.group({
     rating: [0, [Validators.required, Validators.min(1)]],
@@ -75,6 +76,18 @@ export class ProductDetailsComponent implements OnInit {
           if (res.data.imageCover) {
             this.activeImage.set(res.data.imageCover);
           }
+          
+          // Auto-select first value for each custom option if available
+          const initialCustomOptions: Record<string, string> = {};
+          if (res.data.customOptions) {
+            res.data.customOptions.forEach(opt => {
+              if (opt.values && opt.values.length > 0) {
+                initialCustomOptions[opt.name] = opt.values[0].name;
+              }
+            });
+          }
+          this.selectedCustomOptions.set(initialCustomOptions);
+          
           this.loading.set(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         },
@@ -108,6 +121,57 @@ export class ProductDetailsComponent implements OnInit {
     const p = this.product();
     if (!p?.priceAfterDiscount) return 0;
     return Math.round((1 - p.priceAfterDiscount / p.price) * 100);
+  }
+
+  protected selectCustomOption(optionName: string, valueName: string): void {
+    this.selectedCustomOptions.update(opts => ({ ...opts, [optionName]: valueName }));
+  }
+
+  protected getDynamicPrice(): number {
+    const p = this.product();
+    if (!p) return 0;
+    
+    let basePrice = p.priceAfterDiscount || p.price;
+    let adjustment = 0;
+    
+    const selected = this.selectedCustomOptions();
+    if (p.customOptions) {
+      p.customOptions.forEach(opt => {
+        const selectedValName = selected[opt.name];
+        if (selectedValName) {
+          const val = opt.values.find(v => v.name === selectedValName);
+          if (val && val.priceAdjustment) {
+            adjustment += val.priceAdjustment;
+          }
+        }
+      });
+    }
+    
+    return basePrice + adjustment;
+  }
+  
+  protected getDynamicOriginalPrice(): number {
+    const p = this.product();
+    if (!p) return 0;
+    if (!p.priceAfterDiscount) return p.price; // If no discount, dynamic original price is not shown usually, but fallback is base
+    
+    let baseOriginalPrice = p.price;
+    let adjustment = 0;
+    
+    const selected = this.selectedCustomOptions();
+    if (p.customOptions) {
+      p.customOptions.forEach(opt => {
+        const selectedValName = selected[opt.name];
+        if (selectedValName) {
+          const val = opt.values.find(v => v.name === selectedValName);
+          if (val && val.priceAdjustment) {
+            adjustment += val.priceAdjustment;
+          }
+        }
+      });
+    }
+    
+    return baseOriginalPrice + adjustment;
   }
 
   protected getStars(avg?: number): string {
@@ -166,15 +230,22 @@ export class ProductDetailsComponent implements OnInit {
 
     const c = this.selectedColor() ?? undefined;
     const s = this.selectedSize() ?? undefined;
+    
+    const selectedOptsMap = this.selectedCustomOptions();
+    const formattedSelectedOptions = Object.keys(selectedOptsMap).map(key => ({
+      optionName: key,
+      valueName: selectedOptsMap[key]
+    }));
 
     if (this.auth.isAuthenticated()) {
-      this.cartService.addToCart(p._id, c, s).subscribe({
+      // Need to modify CartService to accept selectedOptions
+      this.cartService.addToCart(p._id, c, s, formattedSelectedOptions).subscribe({
         next: () => { this.adding.set(false); this.toast.success('Added to cart!'); },
         error: () => { this.adding.set(false); this.toast.error('Could not add to cart.'); },
       });
     } else {
       for (let i = 0; i < this.qty(); i++) {
-        this.cartService.addToGuestCart(p._id, c, s);
+        this.cartService.addToGuestCart(p._id, c, s, formattedSelectedOptions);
       }
       this.adding.set(false);
       this.toast.success('Added to cart!');

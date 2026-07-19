@@ -21,6 +21,13 @@ const orderItemSchema = new mongoose.Schema({
   size: {
     type: String,
   },
+  selectedOptions: [
+    {
+      optionName: String,
+      valueName: String,
+      priceAdjustment: Number
+    }
+  ],
 });
 
 const orderSchema = new mongoose.Schema(

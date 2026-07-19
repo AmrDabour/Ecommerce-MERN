@@ -38,6 +38,54 @@
 - **Observability:** Prometheus, Grafana, Node Exporter, cAdvisor
 - **Error Tracking:** Sentry
 
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    %% User and Edge
+    User[User / Client] --> |HTTPS / Port 9837| Nginx[Nginx Frontend]
+    
+    %% Frontend and API Gateway
+    subgraph Frontend [Frontend Tier]
+        Nginx --> |Angular App| Browser
+    end
+    
+    Browser --> |REST API / Socket.io| Express[Express.js Backend API]
+    
+    %% Backend Microservices
+    subgraph Backend [Backend & Microservices Tier]
+        Express --> |Read/Write| MongoDB[(MongoDB)]
+        Express --> |Cache & Sessions| Redis[(Redis)]
+        Express --> |Enqueue Email Jobs| BullMQ[BullMQ Worker]
+        Express --> |Proxy AI Requests| FastAPI[FastAPI AI Microservice]
+        
+        FastAPI --> |Enqueue ML Tasks| RabbitMQ[RabbitMQ]
+        RabbitMQ --> |Consume ML Tasks| Celery[Celery AI Worker]
+        
+        BullMQ --> |SMTP| EmailService[Email Service]
+    end
+    
+    %% Monitoring Stack
+    subgraph Observability [Monitoring Tier]
+        Prometheus[Prometheus] -.-> |Scrapes| Express
+        Prometheus -.-> |Scrapes| cAdvisor[cAdvisor]
+        Prometheus -.-> |Scrapes| NodeExporter[Node Exporter]
+        Grafana[Grafana] --> |Queries| Prometheus
+    end
+    
+    %% Styling
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef db fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:white;
+    classDef cache fill:#e53935,stroke:#b71c1c,stroke-width:2px,color:white;
+    classDef mq fill:#ff9800,stroke:#e65100,stroke-width:2px,color:white;
+    classDef obs fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:white;
+    
+    class MongoDB db;
+    class Redis cache;
+    class RabbitMQ mq;
+    class Prometheus,Grafana obs;
+```
+
 ## 🚀 Getting Started
 
 The recommended way to run this highly-distributed architecture is via Docker Compose.

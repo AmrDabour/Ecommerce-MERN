@@ -1,5 +1,7 @@
+const { winstonLogger } = require('../utils/logger.js');
+
 function logger(req, res, next) {
-  console.log("info about this request is ", req.method, req.url);
+  winstonLogger.info(`${req.method} ${req.url} - ${req.ip}`);
   next();
 }
 

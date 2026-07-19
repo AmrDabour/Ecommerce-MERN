@@ -30,6 +30,7 @@ function addToCart(req, res) {
   let productId = req.body.product;
   let color = req.body.color;
   let size = req.body.size;
+  let selectedOptions = req.body.selectedOptions || [];
 
   ProductModel.findById(productId)
     .then((product) => {
@@ -37,7 +38,27 @@ function addToCart(req, res) {
         return res.status(404).json({ msg: "product not found" });
       }
 
-      let price = product.priceAfterDiscount || product.price;
+      let basePrice = product.priceAfterDiscount || product.price;
+      
+      let totalAdjustment = 0;
+      if (selectedOptions.length > 0 && product.customOptions && product.customOptions.length > 0) {
+        selectedOptions.forEach(opt => {
+          const customOpt = product.customOptions.find(o => o.name === opt.optionName);
+          if (customOpt) {
+            const val = customOpt.values.find(v => v.name === opt.valueName);
+            if (val && val.priceAdjustment) {
+              totalAdjustment += val.priceAdjustment;
+              opt.priceAdjustment = val.priceAdjustment; 
+            } else {
+              opt.priceAdjustment = 0;
+            }
+          } else {
+            opt.priceAdjustment = 0;
+          }
+        });
+      }
+      
+      let price = basePrice + totalAdjustment;
 
       return CartModel.findOne({ user: req.user.id })
         .then((cart) => {
@@ -45,14 +66,26 @@ function addToCart(req, res) {
             //create new cart
             return CartModel.create({
               user: req.user.id,
-              cartItems: [{ product: productId, quantity: 1, price: price, color: color, size: size }],
+              cartItems: [{ product: productId, quantity: 1, price: price, color: color, size: size, selectedOptions: selectedOptions }],
               totalPrice: price,
             });
           }
 
           //check if product already in cart with same color and size
           let itemIndex = cart.cartItems.findIndex(
-            (item) => item.product.toString() === productId && item.color === color && item.size === size,
+            (item) => {
+              if (item.product.toString() !== productId || item.color !== color || item.size !== size) {
+                return false;
+              }
+              const itemOptions = item.selectedOptions || [];
+              if (itemOptions.length !== selectedOptions.length) return false;
+              
+              return selectedOptions.every(opt => {
+                return itemOptions.some(itemOpt => 
+                  itemOpt.optionName === opt.optionName && itemOpt.valueName === opt.valueName
+                );
+              });
+            }
           );
 
           if (itemIndex > -1) {
@@ -60,7 +93,7 @@ function addToCart(req, res) {
             cart.cartItems[itemIndex].quantity += 1;
           } else {
             //add new item
-            cart.cartItems.push({ product: productId, quantity: 1, price: price, color: color, size: size });
+            cart.cartItems.push({ product: productId, quantity: 1, price: price, color: color, size: size, selectedOptions: selectedOptions });
           }
 
           cart.totalPrice = calcTotalPrice(cart.cartItems);

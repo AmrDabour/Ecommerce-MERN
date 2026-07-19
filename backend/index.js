@@ -7,6 +7,7 @@ const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
 const { logger } = require("./middleware/logger.js");
+const { winstonLogger } = require("./utils/logger.js");
 const mongoose = require("mongoose");
 
 // Initialize Cron Jobs
@@ -29,6 +30,7 @@ const giftCardRoute = require("./routes/giftCards");
 const { webhookCheckout } = require("./controller/orders");
 const { router: notificationsRouter } = require("./routes/notifications.js");
 const liveChatRouter = require("./routes/liveChat.js");
+const { router: adminRouter } = require("./routes/admin.js");
 const socketHandler = require("./transport/socketHandler.js");
 
 //cors>>cross origin
@@ -82,13 +84,14 @@ app.use("/referral", referralRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/gift-cards", giftCardRoute);
 app.use("/live-chat", liveChatRouter);
+app.use("/admin", adminRouter);
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
 
 //=====error handling======//
 app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(500).json({ msg: "something broke!!!! ", err });
+  winstonLogger.error(`Unhandled Error: ${err.message}`, { stack: err.stack, path: req.path });
+  res.status(500).json({ msg: "something broke!!!! ", err: err.message });
 });
 
 //=====not found routes======//
@@ -96,14 +99,13 @@ app.use((req, res, next) => {
   res.status(404).json("route is not found");
 });
 
-//return promise>>connect to mongo db
 mongoose
   .connect(process.env.DATA_BASE_URL)
   .then(() => {
-    console.log("connected to MONGO DB successfully ");
+    winstonLogger.info("connected to MONGO DB successfully ");
   })
   .catch((err) => {
-    console.log(err);
+    winstonLogger.error("Failed to connect to MongoDB", { error: err.message });
   });
 
 //start server
@@ -120,10 +122,10 @@ socketHandler(io);
 
 server.listen(process.env.PORT, (err) => {
   if (err) {
-    console.log(err);
+    winstonLogger.error("Error starting server", { error: err.message });
   }
 
-  console.log(`Server connected successfully on port ${process.env.PORT}`);
+  winstonLogger.info(`Server connected successfully on port ${process.env.PORT}`);
 });
 
 //////  MVC >> MODEL VIEW CONTROLLER

@@ -1,5 +1,16 @@
 import { Category } from './category.model';
 
+export interface CustomOptionValue {
+  name: string;
+  priceAdjustment?: number;
+}
+
+export interface CustomOption {
+  _id?: string;
+  name: string;
+  values: CustomOptionValue[];
+}
+
 export interface Product {
   _id: string;
   name: string;
@@ -11,6 +22,7 @@ export interface Product {
   images?: string[];
   colors?: string[];
   sizes?: string[];
+  customOptions?: CustomOption[];
   category: string | Category;
   ratingsAvg?: number;
   ratingsCount?: number;
@@ -39,5 +51,6 @@ export interface CreateProductRequest {
   images?: string[];
   colors?: string[];
   sizes?: string[];
+  customOptions?: CustomOption[];
   category: string;
 }

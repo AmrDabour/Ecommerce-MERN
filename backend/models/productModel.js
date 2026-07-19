@@ -38,6 +38,17 @@ const productSchema = new mongoose.Schema(
     sizes: {
       type: [String],
     },
+    customOptions: [
+      {
+        name: { type: String, required: true }, // e.g., 'Storage', 'RAM'
+        values: [
+          {
+            name: { type: String, required: true }, // e.g., '128GB', '256GB'
+            priceAdjustment: { type: Number, default: 0 } // e.g., 0, 50
+          }
+        ]
+      }
+    ],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "categories",

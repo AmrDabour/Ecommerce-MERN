@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
@@ -36,8 +36,44 @@ export class AdminProductsComponent implements OnInit {
     priceAfterDiscount: [null as number | null],
     quantity: [0, [Validators.required, Validators.min(0)]],
     category: ['', Validators.required],
-    imageCover: ['']
+    imageCover: [''],
+    customOptions: this.fb.array([])
   });
+
+  get customOptions(): FormArray {
+    return this.form.get('customOptions') as FormArray;
+  }
+
+  getOptionValues(optionIndex: number): FormArray {
+    return this.customOptions.at(optionIndex).get('values') as FormArray;
+  }
+
+  addOption(): void {
+    const optionGroup = this.fb.group({
+      name: ['', Validators.required],
+      values: this.fb.array([this.createOptionValue()])
+    });
+    this.customOptions.push(optionGroup);
+  }
+
+  removeOption(index: number): void {
+    this.customOptions.removeAt(index);
+  }
+
+  createOptionValue(): FormGroup {
+    return this.fb.group({
+      name: ['', Validators.required],
+      priceAdjustment: [0, Validators.required]
+    });
+  }
+
+  addOptionValue(optionIndex: number): void {
+    this.getOptionValues(optionIndex).push(this.createOptionValue());
+  }
+
+  removeOptionValue(optionIndex: number, valueIndex: number): void {
+    this.getOptionValues(optionIndex).removeAt(valueIndex);
+  }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -73,9 +109,27 @@ export class AdminProductsComponent implements OnInit {
         category: typeof product.category === 'string' ? product.category : product.category._id,
         imageCover: product.imageCover || ''
       });
+      
+      this.customOptions.clear();
+      if (product.customOptions && product.customOptions.length > 0) {
+        product.customOptions.forEach(opt => {
+          const valuesArray = this.fb.array(
+            opt.values.map(val => this.fb.group({
+              name: [val.name, Validators.required],
+              priceAdjustment: [val.priceAdjustment || 0, Validators.required]
+            }))
+          );
+          
+          this.customOptions.push(this.fb.group({
+            name: [opt.name, Validators.required],
+            values: valuesArray
+          }));
+        });
+      }
     } else {
       this.editingId.set(null);
       this.form.reset({ price: 0, quantity: 0, category: '' });
+      this.customOptions.clear();
     }
     this.showModal.set(true);
   }
@@ -86,7 +140,11 @@ export class AdminProductsComponent implements OnInit {
   }
 
   protected onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      console.error("Form is invalid! Check missing required fields.");
+      return;
+    }
     this.saving.set(true);
     const data = this.form.value;
     

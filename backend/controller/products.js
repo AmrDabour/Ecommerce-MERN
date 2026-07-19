@@ -76,6 +76,7 @@ function addProduct(req, res) {
 
 //update product
 function updateProduct(req, res) {
+  console.log("UPDATE PRODUCT BODY:", JSON.stringify(req.body, null, 2));
   ProductModel.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then((data) => {
       if (!data) {

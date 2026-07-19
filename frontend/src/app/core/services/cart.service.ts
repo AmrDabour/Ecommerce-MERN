@@ -42,22 +42,34 @@ export class CartService {
     );
   }
 
-  addToCart(productId: string, color?: string, size?: string): Observable<ApiResponse<Cart>> {
+  addToCart(productId: string, color?: string, size?: string, selectedOptions?: any[]): Observable<ApiResponse<Cart>> {
     return this.http
-      .post<ApiResponse<Cart>>(`${this.apiUrl}/cart`, { product: productId, color, size })
+      .post<ApiResponse<Cart>>(`${this.apiUrl}/cart`, { product: productId, color, size, selectedOptions })
       .pipe(tap((res) => this._cart.set(res.data)));
   }
 
-  addToGuestCart(productId: string, color?: string, size?: string): void {
+  addToGuestCart(productId: string, color?: string, size?: string, selectedOptions?: any[]): void {
     const current = this._guestCart();
-    const idx = current.findIndex((i) => i.productId === productId && i.color === color && i.size === size);
+    
+    // Exact match requires matching color, size, and selectedOptions
+    const idx = current.findIndex((i) => {
+      if (i.productId !== productId || i.color !== color || i.size !== size) return false;
+      const itemOpts = i.selectedOptions || [];
+      const newOpts = selectedOptions || [];
+      if (itemOpts.length !== newOpts.length) return false;
+      
+      return newOpts.every(opt => 
+        itemOpts.some(itemOpt => itemOpt.optionName === opt.optionName && itemOpt.valueName === opt.valueName)
+      );
+    });
+
     let updated: GuestCartItem[];
     if (idx > -1) {
       updated = current.map((item, i) =>
         i === idx ? { ...item, quantity: item.quantity + 1 } : item,
       );
     } else {
-      updated = [...current, { productId, quantity: 1, color, size }];
+      updated = [...current, { productId, quantity: 1, color, size, selectedOptions }];
     }
     this.saveGuestCart(updated);
   }
@@ -96,7 +108,7 @@ export class CartService {
     if (guests.length === 0) return;
     for (const item of guests) {
       try {
-        await this.addToCart(item.productId).toPromise();
+        await this.addToCart(item.productId, item.color, item.size, item.selectedOptions).toPromise();
       } catch {
         // Continue merging even if one item fails
       }

@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const { CartModel } = require('../models/cartModel');
-const sendEmail = require('../utils/email');
+const { emailQueue } = require('../utils/queues.js');
+const { winstonLogger } = require('../utils/logger.js');
 
 // Run every hour to check for abandoned carts
 function startAbandonedCartJob() {
@@ -37,7 +38,8 @@ function startAbandonedCartJob() {
         `;
 
         try {
-          await sendEmail({
+          // Enqueue the email job in BullMQ
+          await emailQueue.add('abandoned-cart', {
             email: cart.user.email,
             subject: 'Did you forget something? 🛒',
             html: html
@@ -47,12 +49,12 @@ function startAbandonedCartJob() {
           cart.abandonedEmailSent = true;
           await cart.save();
         } catch (emailErr) {
-          console.error(`[CRON] Failed to send email to ${cart.user.email}:`, emailErr);
+          winstonLogger.error(`[CRON] Failed to enqueue email for ${cart.user.email}:`, { error: emailErr.message });
         }
       }
     }
   } catch (err) {
-    console.error('[CRON] Error checking abandoned carts:', err);
+    winstonLogger.error('[CRON] Error checking abandoned carts:', { error: err.message });
   }
   });
 

@@ -1,5 +1,11 @@
 import { Product } from './product.model';
 
+export interface SelectedOption {
+  optionName: string;
+  valueName: string;
+  priceAdjustment?: number;
+}
+
 export interface CartItem {
   _id: string;
   product: Product | string;
@@ -7,6 +13,7 @@ export interface CartItem {
   price: number;
   color?: string;
   size?: string;
+  selectedOptions?: SelectedOption[];
 }
 
 /** Backend uses 'cartItems' not 'items' */
@@ -25,4 +32,5 @@ export interface GuestCartItem {
   quantity: number;
   color?: string;
   size?: string;
+  selectedOptions?: SelectedOption[];
 }

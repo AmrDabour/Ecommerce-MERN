@@ -1,5 +1,6 @@
 import { Product } from './product.model';
 import { User, Address } from './user.model';
+import { SelectedOption } from './cart.model';
 
 export interface OrderItem {
   _id?: string;
@@ -8,6 +9,7 @@ export interface OrderItem {
   price: number;
   color?: string;
   size?: string;
+  selectedOptions?: SelectedOption[];
 }
 
 /** Backend uses 'orderItems' not 'items' */

@@ -74,11 +74,11 @@
 
             <div class="pd-info__pricing">
               @if (product()!.priceAfterDiscount && product()!.priceAfterDiscount! < product()!.price) {
-                <span class="pd-price-current">${{ product()!.priceAfterDiscount!.toFixed(2) }}</span>
-                <span class="pd-price-original">${{ product()!.price.toFixed(2) }}</span>
-                <span class="pd-price-save">Save ${{ (product()!.price - product()!.priceAfterDiscount!).toFixed(2) }}</span>
+                <span class="pd-price-current">${{ getDynamicPrice().toFixed(2) }}</span>
+                <span class="pd-price-original">${{ getDynamicOriginalPrice().toFixed(2) }}</span>
+                <span class="pd-price-save">Save ${{ (getDynamicOriginalPrice() - getDynamicPrice()).toFixed(2) }}</span>
               } @else {
-                <span class="pd-price-current">${{ product()!.price.toFixed(2) }}</span>
+                <span class="pd-price-current">${{ getDynamicPrice().toFixed(2) }}</span>
               }
             </div>
 
@@ -126,6 +126,28 @@
                   }
                 </div>
               </div>
+            }
+
+            @if (product()!.customOptions && product()!.customOptions!.length > 0) {
+              @for (option of product()!.customOptions; track option.name) {
+                <div class="pd-variants" style="margin-top: 1rem;">
+                  <span class="pd-variants__label">{{ option.name }}:</span>
+                  <div class="pd-variants__options">
+                    @for (val of option.values; track val.name) {
+                      <button class="pd-variants__btn" 
+                              [class.pd-variants__btn--active]="selectedCustomOptions()[option.name] === val.name"
+                              (click)="selectCustomOption(option.name, val.name)">
+                        {{ val.name }}
+                        @if (val.priceAdjustment) {
+                          <span class="pd-variants__price-adj">
+                            {{ val.priceAdjustment > 0 ? '+' : '' }}${{ val.priceAdjustment }}
+                          </span>
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
             }
 
             <!-- Quantity + Add to cart -->

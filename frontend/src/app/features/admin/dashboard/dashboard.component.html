@@ -7,45 +7,91 @@
             <div class="stat-card skeleton"></div>
           }
         </div>
-      } @else {
+      } @else if (stats()) {
         <div class="stats-grid">
-          <!-- Total Products -->
+          <!-- Total Users -->
           <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--blue">🛍</div>
+            <div class="stat-card__icon stat-card__icon--blue">👥</div>
             <div class="stat-card__info">
-              <div class="stat-card__value">{{ stats().products }}</div>
-              <div class="stat-card__label">Total Products</div>
+              <div class="stat-card__value">{{ stats()!.totalUsers }}</div>
+              <div class="stat-card__label">Active Users</div>
             </div>
-            <a routerLink="/admin/products" class="stat-card__link">View All →</a>
-          </div>
-
-          <!-- Total Categories -->
-          <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--green">📁</div>
-            <div class="stat-card__info">
-              <div class="stat-card__value">{{ stats().categories }}</div>
-              <div class="stat-card__label">Categories</div>
-            </div>
-            <a routerLink="/admin/categories" class="stat-card__link">View All →</a>
           </div>
 
           <!-- Total Orders -->
           <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--purple">📦</div>
+            <div class="stat-card__icon stat-card__icon--green">📦</div>
             <div class="stat-card__info">
-              <div class="stat-card__value">{{ stats().orders }}</div>
-              <div class="stat-card__label">Recent Orders</div>
+              <div class="stat-card__value">{{ stats()!.totalOrders }}</div>
+              <div class="stat-card__label">Total Orders</div>
             </div>
             <a routerLink="/admin/orders" class="stat-card__link">View All →</a>
           </div>
 
-          <!-- Revenue (Mock) -->
+          <!-- Total Revenue -->
           <div class="stat-card">
             <div class="stat-card__icon stat-card__icon--yellow">💰</div>
             <div class="stat-card__info">
-              <div class="stat-card__value">${{ (stats().orders * 125).toFixed(0) }}</div>
-              <div class="stat-card__label">Est. Revenue</div>
+              <div class="stat-card__value">${{ stats()!.totalRevenue.toFixed(0) }}</div>
+              <div class="stat-card__label">Total Revenue</div>
             </div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h2 class="chart-card__title">Monthly Revenue (Last 6 Months)</h2>
+            <div class="chart-container" style="position: relative; height: 300px; padding: 10px;">
+              <canvas baseChart
+                [data]="barChartData()"
+                [options]="barChartOptions"
+                [type]="'bar'">
+              </canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h2 class="chart-card__title">Products by Category</h2>
+            <div class="chart-container" style="position: relative; height: 300px; padding: 10px;">
+              <canvas baseChart
+                [data]="pieChartData()"
+                [options]="pieChartOptions"
+                [type]="'pie'">
+              </canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top 5 Products Table -->
+        <div class="dash-panel" style="margin-bottom: var(--space-8);">
+          <h2 class="dash-panel__title">Top 5 Most Purchased Products</h2>
+          <div class="table-responsive">
+            <table class="top-products-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Sold</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (product of stats()!.topProducts; track product.name) {
+                  <tr>
+                    <td>
+                      <div class="product-cell">
+                        <img [src]="product.imageCover" [alt]="product.name" class="product-cell__img">
+                        <span class="product-cell__name">{{ product.name }}</span>
+                      </div>
+                    </td>
+                    <td style="font-weight: 500;">${{ product.price }}</td>
+                    <td>
+                      <span class="stock-badge" [class.stock-badge--low]="product.quantity < 10">{{ product.quantity }}</span>
+                    </td>
+                    <td style="color: var(--color-success); font-weight: bold;">{{ product.sold }} units</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
       }

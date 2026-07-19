@@ -203,11 +203,11 @@
     }
 
     .pd-add-btn {
-      flex: 1;
-      height: 52px;
-      padding: 0 1.5rem;
+      min-width: 200px;
+      min-height: 52px;
+      padding: 14px 2rem;
       background: var(--color-accent);
-      color: white;
+      color: #ffffff !important;
       border: none;
       border-radius: var(--radius-sm);
       font-weight: var(--weight-bold);
@@ -221,6 +221,7 @@
 
       &:hover:not(:disabled) {
         background: var(--color-accent-hover);
+        color: #ffffff !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
       }
@@ -245,9 +246,31 @@
       transition: all var(--transition-fast);
 
       &:hover {
-        color: white;
         border-color: var(--color-accent);
-        background: var(--color-accent);
+        color: var(--color-accent);
+      }
+    }
+
+    .pd-variants__btn {
+      padding: var(--space-2) var(--space-4);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-full);
+      background: var(--color-surface);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+
+      &:hover, &.pd-variants__btn--active {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+
+      .pd-variants__price-adj {
+        font-size: var(--text-xs);
+        color: var(--color-text-tertiary);
+        margin-left: var(--space-1);
       }
     }
 
@@ -334,7 +357,7 @@
       margin-top: var(--space-4);
       padding: var(--space-3) var(--space-6);
       background: var(--color-accent);
-      color: white;
+      color: #ffffff !important;
       border: none;
       border-radius: var(--radius-md);
       font-size: var(--text-sm);
@@ -342,7 +365,10 @@
       cursor: pointer;
       font-family: inherit;
       transition: all var(--transition-fast);
-      &:hover:not(:disabled) { background: var(--color-accent-hover); }
+      &:hover:not(:disabled) { 
+        background: var(--color-accent-hover); 
+        color: #ffffff !important;
+      }
       &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 

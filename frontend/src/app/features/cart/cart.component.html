@@ -41,7 +41,12 @@
                   </a>
                   <div class="cart-item__variants" style="font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.25rem;">
                     @if (item.color) { <span style="margin-right: 0.5rem;">Color: {{ item.color }}</span> }
-                    @if (item.size) { <span>Size: {{ item.size }}</span> }
+                    @if (item.size) { <span style="margin-right: 0.5rem;">Size: {{ item.size }}</span> }
+                    @if (item.selectedOptions && item.selectedOptions.length > 0) {
+                      @for (opt of item.selectedOptions; track opt.optionName) {
+                        <span style="margin-right: 0.5rem;">{{ opt.optionName }}: {{ opt.valueName }}</span>
+                      }
+                    }
                   </div>
                   <div class="cart-item__unit-price">${{ item.price.toFixed(2) }} each</div>
                 </div>

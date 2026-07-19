@@ -21,6 +21,7 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
 import { SocialLoginModule, SocialAuthServiceConfig, GoogleLoginProvider, SOCIAL_AUTH_CONFIG } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,6 +29,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    provideCharts(withDefaultRegisterables()),
     {
       provide: ErrorHandler,
       useValue: Sentry.createErrorHandler(),

@@ -64,7 +64,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   protected getTotal(): number {
-    let total = this.cartService.cart()?.totalPrice ?? this.getSubtotal();
+    const cart = this.cartService.cart();
+    let total = cart?.totalPriceAfterDiscount ?? cart?.totalPrice ?? this.getSubtotal();
     
     // Deduct wallet balance if toggle is on
     if (this.form.value.useWallet) {

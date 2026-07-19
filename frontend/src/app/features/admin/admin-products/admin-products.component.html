@@ -116,6 +116,34 @@
                 </div>
               </div>
 
+              <!-- Custom Options -->
+              <div class="form-group custom-options-section" formArrayName="customOptions">
+                <div class="custom-options-header">
+                  <label class="form-label">Custom Variants (Size, Color, etc.)</label>
+                  <button type="button" class="btn-small" (click)="addOption()">+ Add Variant</button>
+                </div>
+                
+                @for (option of customOptions.controls; track $index; let optIndex = $index) {
+                  <div class="custom-option-card" [formGroupName]="optIndex">
+                    <div class="custom-option-header">
+                      <input type="text" class="form-input" formControlName="name" placeholder="Variant Name (e.g. Size)" />
+                      <button type="button" class="btn-remove-opt" (click)="removeOption(optIndex)">✕</button>
+                    </div>
+                    
+                    <div class="custom-values" formArrayName="values">
+                      @for (val of getOptionValues(optIndex).controls; track $index; let valIndex = $index) {
+                        <div class="custom-value-row" [formGroupName]="valIndex">
+                          <input type="text" class="form-input value-name" formControlName="name" placeholder="Value (e.g. XL)" />
+                          <input type="number" class="form-input value-price" formControlName="priceAdjustment" placeholder="Price Adjust ($)" />
+                          <button type="button" class="btn-remove-val" (click)="removeOptionValue(optIndex, valIndex)">✕</button>
+                        </div>
+                      }
+                      <button type="button" class="btn-add-val" (click)="addOptionValue(optIndex)">+ Add Value</button>
+                    </div>
+                  </div>
+                }
+              </div>
+
               <div class="form-group">
                 <label class="form-label" for="imageCover">Image URL</label>
                 <input id="imageCover" type="text" class="form-input" formControlName="imageCover" placeholder="https://example.com/image.jpg" />
