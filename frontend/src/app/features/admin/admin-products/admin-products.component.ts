@@ -27,7 +27,9 @@ export class AdminProductsComponent implements OnInit {
 
   protected readonly showModal = signal(false);
   protected readonly saving = signal(false);
+  protected readonly isUploadingImage = signal(false);
   protected readonly editingId = signal<string | null>(null);
+  protected selectedFile = signal<File | null>(null);
 
   protected readonly form = this.fb.group({
     name: ['', Validators.required],
@@ -131,12 +133,21 @@ export class AdminProductsComponent implements OnInit {
       this.form.reset({ price: 0, quantity: 0, category: '' });
       this.customOptions.clear();
     }
+    this.selectedFile.set(null);
     this.showModal.set(true);
   }
 
   protected closeModal(): void {
     this.showModal.set(false);
     this.editingId.set(null);
+    this.selectedFile.set(null);
+  }
+
+  protected onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.selectedFile.set(file);
+    }
   }
 
   protected onSubmit(): void {
@@ -145,7 +156,30 @@ export class AdminProductsComponent implements OnInit {
       console.error("Form is invalid! Check missing required fields.");
       return;
     }
+    
     this.saving.set(true);
+
+    if (this.selectedFile()) {
+      this.isUploadingImage.set(true);
+      this.productService.uploadImage(this.selectedFile()!).subscribe({
+        next: (res) => {
+          this.isUploadingImage.set(false);
+          // Set the returned MinIO URL to the form
+          this.form.patchValue({ imageCover: res.url });
+          this.executeSubmit();
+        },
+        error: (err) => {
+          this.isUploadingImage.set(false);
+          this.saving.set(false);
+          this.toast.error('Failed to upload image. ' + (err?.error?.message || ''));
+        }
+      });
+    } else {
+      this.executeSubmit();
+    }
+  }
+
+  private executeSubmit(): void {
     const data = this.form.value;
     
     // Cleanup empty discount

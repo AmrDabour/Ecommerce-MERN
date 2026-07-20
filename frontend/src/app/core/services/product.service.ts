@@ -24,6 +24,12 @@ export class ProductService {
     });
   }
 
+  uploadImage(file: File): Observable<{ message: string, url: string, filename: string }> {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.http.post<{ message: string, url: string, filename: string }>(`${this.apiUrl}/api/upload`, formData);
+  }
+
   getProduct(id: string): Observable<ApiResponse<Product>> {
     return this.http.get<ApiResponse<Product>>(`${this.apiUrl}/products/${id}`);
   }

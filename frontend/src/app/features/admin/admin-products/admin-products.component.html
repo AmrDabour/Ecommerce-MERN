@@ -144,15 +144,34 @@
                 }
               </div>
 
+              <!-- Image Upload -->
               <div class="form-group">
-                <label class="form-label" for="imageCover">Image URL</label>
-                <input id="imageCover" type="text" class="form-input" formControlName="imageCover" placeholder="https://example.com/image.jpg" />
+                <label>Product Image</label>
+                <div class="file-upload-wrapper">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    class="file-input"
+                    (change)="onFileSelected($event)"
+                    #fileInput
+                  />
+                  <button type="button" class="btn btn-secondary" (click)="fileInput.click()">
+                    Choose Image
+                  </button>
+                  @if (selectedFile()) {
+                    <span class="file-name">{{ selectedFile()?.name }}</span>
+                  }
+                  @if (!selectedFile() && form.get('imageCover')?.value) {
+                    <span class="file-name text-muted">Current: {{ form.get('imageCover')?.value }}</span>
+                  }
+                </div>
+                <div class="form-hint">Upload a new image, or leave empty to keep the existing one.</div>
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn--outline" (click)="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn--primary" [disabled]="form.invalid || saving()">
-                  {{ saving() ? 'Saving…' : 'Save Product' }}
+                <button type="button" class="btn btn-outline" (click)="closeModal()" [disabled]="saving() || isUploadingImage()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="saving() || isUploadingImage()">
+                  {{ saving() ? 'Saving...' : (isUploadingImage() ? 'Uploading...' : 'Save Product') }}
                 </button>
               </div>
             </form>
