@@ -30,6 +30,7 @@ const giftCardRoute = require("./routes/giftCards");
 const { webhookCheckout } = require("./controller/orders");
 const { router: notificationsRouter } = require("./routes/notifications.js");
 const liveChatRouter = require("./routes/liveChat.js");
+const uploadRoutes = require('./routes/upload.js');
 const { router: adminRouter } = require("./routes/admin.js");
 const socketHandler = require("./transport/socketHandler.js");
 
@@ -84,6 +85,7 @@ app.use("/referral", referralRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/gift-cards", giftCardRoute);
 app.use("/live-chat", liveChatRouter);
+app.use('/api/upload', uploadRoutes);
 app.use("/admin", adminRouter);
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
